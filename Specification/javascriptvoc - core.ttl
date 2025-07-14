@@ -77,7 +77,7 @@ prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 # Root node of the AST (Program node)
 ex:program1
   a js:Program ;
-  js:body ex:expressionStatement1 ;
+  js:body (ex:expressionStatement1) ;
   js:fragment '''console.log("Hello world!");'''.  
 
 # ExpressionStatement
@@ -90,8 +90,8 @@ ex:expressionStatement1
 ex:callExpression1
   a js:CallExpression ;
   js:callee    ex:memberExpression1 ;
-  js:arguments ex:arguments1 ;
-  js:fragment '''console.log("Hello world!")'''.
+  js:arguments (ex:argument1) ;
+  js:fragment '''console.log("Hello world!")'''.  
 
 # MemberExpression node
 ex:memberExpression1
@@ -101,20 +101,20 @@ ex:memberExpression1
   js:computed false;
   js:fragment '''console.log'''.
 
-# Identifier 1
+# Identifier object 'console'
 ex:identifier_console
   a js:Identifier ;
   js:name '''console''' ;
   js:fragment '''console'''.  
 
-# Identifier 2
+# Identifier property 'log'
 ex:identifier_log
   a js:Identifier ;
   js:name '''log''';
   js:fragment '''log'''.
 
 # Literal
-ex:arguments1
+ex:argument
   a js:Literal ;
   js:value '''Hello world!''' ;
   js:raw '''\"hello world!\"''';
