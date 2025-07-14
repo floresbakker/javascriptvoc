@@ -979,9 +979,10 @@ select $this {
     filter not exists { ?expression js:fragment []. }
   }
 
-  # ...but whose body already has a js:fragment. Note: ESTree mentions one statement only and not an array of statements.
+  # ...but whose body already has a js:fragment.
   filter not exists {
     $this js:body ?statement.
+    ?statement rdf:type/rdfs:subClassOf js:Statement.
     filter not exists { ?statement js:fragment []. }
   } 
 }''';
@@ -1217,6 +1218,72 @@ construct {
   ?label js:fragment ?labelFragment. }
  
   bind(concat("continue ", coalesce(?labelFragment,""), ";") as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:IfStatement
+    a sh:NodeShape;
+    sh:rule rule:IfStatement;
+    sh:target target:IfStatement;
+    skos:prefLabel 'IfStatement shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:IfStatement
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all call expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:IfStatement.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose test expression already has a js:fragment
+  filter not exists {
+    $this js:test ?test.
+    filter not exists { ?test js:fragment []. }
+  }
+
+  # ...but whose consequent expression already has a js:fragment
+  filter not exists {
+    $this js:consequent ?consequent.
+    filter not exists { ?consequent js:fragment []. }
+  }  
+  
+  # ...and whose alternate statement already has a js:fragment (or is rdf:nil without js:fragment)
+  filter not exists {
+    $this js:alternate ?alternate.
+    ?alternate rdf:type/rdfs:subClassOf* js:Statement.
+    filter not exists { ?alternate js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:IfStatement
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+   
+  $this js:test ?test.  
+  ?test js:fragment ?testFragment.       
+  $this js:consequent ?consequent.
+  ?consequent js:fragment ?consequentFragment.
+  $this js:alternate ?alternate.
+  optional{
+  ?alternate js:fragment ?alternateFragment.}
+ 
+  bind(concat("if (",?testFragment, ")\n", "\t",?consequentFragment, "\n", if(bound(?alternateFragment), concat('else \n\t', ?alternateFragment),"\n"), "") as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
