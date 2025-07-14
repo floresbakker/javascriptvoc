@@ -26,7 +26,7 @@ current_dir = os.getcwd()
 directory_path = os.path.abspath(os.path.join(current_dir, '..'))
 
 # namespace declaration
-js= Namespace("https://www.javascript.fin.rijksweb/model/def/")
+js = Namespace("https://www.javascript.fin.rijksweb/model/def/")
 
 # Function to read a graph (as a string) from a file 
 def readGraphFromFile(file_path):
@@ -86,7 +86,7 @@ WHERE {
 
         ''')   
 
-        # Check whether another iteration is needed. If every OWL and RDFS construct contains a javascript:syntax statement, the processing is considered done.
+        # Check whether another iteration is needed. If the AST program node contains a javascript:syntax statement, the processing is considered done.
         for status in statusquery:
             print ('status = ', status)
             if status == False:
@@ -98,7 +98,7 @@ WHERE {
         
                  for result in resultquery:
                     javascript_fragment = result["javascriptFragment"]
-                    output_file_path = directory_path+"/javascriptvoc/Tools/Output/"+filename_stem+".py"
+                    output_file_path = directory_path+"/javascriptvoc/Tools/Output/"+filename_stem+".js"
                     
                     # Write the javascript content to the output file
                     with open(output_file_path, "w", encoding="utf-8") as file:

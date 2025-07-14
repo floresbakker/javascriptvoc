@@ -181,7 +181,7 @@ js:Node
 
 js:Program
   a owl:Class;
-  rdfs:subClassOf js:NonTerminalNode;
+  rdfs:subClassOf js:Node;
   dct:conformsTo section:Program;
   skos:definition 'Represents a program in the Javascript syntax.'@en;
   skos:prefLabel 'Program'@en;
@@ -189,7 +189,7 @@ js:Program
 
 js:Function
   a owl:Class;
-  rdfs:subClassOf js:NonTerminalNode;
+  rdfs:subClassOf js:Node;
   dct:conformsTo section:Function;
   skos:definition 'Represents a function in the Javascript syntax.'@en;
   skos:prefLabel 'Function'@en;
@@ -197,7 +197,7 @@ js:Function
 
 js:Statement
   a owl:Class;
-  rdfs:subClassOf js:NonTerminalNode;
+  rdfs:subClassOf js:Node;
   dct:conformsTo section:Statement;
   skos:definition 'Represents a statement in the Javascript syntax.'@en;
   skos:prefLabel 'Statement'@en;
@@ -205,7 +205,7 @@ js:Statement
 
 js:Property
   a owl:Class;
-  rdfs:subClassOf js:NonTerminalNode;
+  rdfs:subClassOf js:Node;
   dct:conformsTo section:Property;
   skos:definition 'Represents a property in the Javascript syntax.'@en;
   skos:prefLabel 'Property'@en;
@@ -213,7 +213,7 @@ js:Property
 
 js:Pattern
   a owl:Class;
-  rdfs:subClassOf js:TerminalNode;
+  rdfs:subClassOf js:Node;
   dct:conformsTo section:Pattern;
   skos:definition 'Represents a pattern in the Javascript syntax.'@en;
   skos:prefLabel 'Pattern'@en;
@@ -361,7 +361,7 @@ js:VariableDeclaration
 
 js:SwitchCase
   a owl:Class;
-  rdfs:subClassOf js:NonTerminalNode;
+  rdfs:subClassOf js:Node;
   dct:conformsTo section:SwitchCase;
   skos:definition 'Represents a switch case statement in the Javascript syntax.'@en;
   skos:prefLabel 'Switch case'@en;
@@ -369,7 +369,7 @@ js:SwitchCase
 
 js:CatchClause
   a owl:Class;
-  rdfs:subClassOf js:NonTerminalNode;
+  rdfs:subClassOf js:Node;
   dct:conformsTo section:CatchClause;
   skos:definition 'Represents a catch clause statement in the Javascript syntax.'@en;
   skos:prefLabel 'Catch clause'@en;
@@ -377,7 +377,7 @@ js:CatchClause
 
 js:VariableDeclarator
   a owl:Class;
-  rdfs:subClassOf js:NonTerminalNode;
+  rdfs:subClassOf js:Node;
   dct:conformsTo section:VariableDeclarator;
   skos:definition 'Represents a variable declarator in the Javascript syntax.'@en;
   skos:prefLabel 'Variable declarator'@en;
@@ -385,7 +385,7 @@ js:VariableDeclarator
 
 js:Expression
   a owl:Class;
-  rdfs:subClassOf js:NonTerminalNode;
+  rdfs:subClassOf js:Node;
   dct:conformsTo section:Expression;
   skos:definition 'Represents an expression in the Javascript syntax.'@en;
   skos:prefLabel 'Expression'@en;
@@ -484,7 +484,7 @@ js:SequenceExpression
 
 js:MemberExpression
   a owl:Class ;
-  rdfs:subClassOf js:NonTerminalNode ;
+  rdfs:subClassOf js:Node ;
   owl:unionOf (js:Expression js:Pattern);
   skos:prefLabel "Member Expression"@en ;
   skos:definition "An expression accessing a property of an object."@en ;
@@ -492,7 +492,7 @@ js:MemberExpression
 
 js:FunctionExpression
   a owl:Class ;
-  rdfs:subClassOf js:NonTerminalNode ;
+  rdfs:subClassOf js:Node ;
   owl:intersectionOf (js:Function js:Expression);
   skos:prefLabel "Function Expression"@en ;
   skos:definition "An expression calling a function."@en ;
@@ -500,7 +500,7 @@ js:FunctionExpression
 
 js:FunctionDeclaration
   a owl:Class ;
-  rdfs:subClassOf js:NonTerminalNode ;
+  rdfs:subClassOf js:Node ;
   owl:intersectionOf (js:Function js:Declaration);
   skos:prefLabel "Function Declaration"@en ;
   skos:definition "A function declaration."@en ;
@@ -508,7 +508,7 @@ js:FunctionDeclaration
 
 js:Identifier
   a owl:Class ;
-  rdfs:subClassOf js:TerminalNode ;
+  rdfs:subClassOf js:Node ;
   owl:unionOf (js:Expression js:Pattern);
   skos:prefLabel "Identifier"@en ;
   skos:definition "A terminal node representing a variable or function name."@en ;
@@ -516,7 +516,7 @@ js:Identifier
 
 js:Literal
   a owl:Class ;
-  rdfs:subClassOf js:TerminalNode ;
+  rdfs:subClassOf js:Node ;
   skos:prefLabel "Literal"@en ;
   skos:definition "A terminal node representing a fixed value like a string, number, or boolean."@en ;
   rdfs:isDefinedBy js: .
