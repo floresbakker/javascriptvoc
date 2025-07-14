@@ -809,6 +809,417 @@ construct {
 }''';
     rdfs:isDefinedBy js:.
 
+shp:BlockStatement
+    a sh:NodeShape;
+    sh:rule rule:BlockStatement;
+    sh:target target:BlockStatement;
+    skos:prefLabel 'BlockStatement shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:BlockStatement
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all call expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:BlockStatement.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+  
+  # ...but whose body array elements already have a js:fragment
+  filter not exists {
+    $this js:body ?array.
+    ?array rdf:first+ ?element.
+    filter not exists { ?element js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:BlockStatement
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+   
+  {select(group_concat(?elementFragment; separator="\n") as ?statementsFragment)
+  where {
+  $this js:body ?array.
+  ?array rdf:first+ ?element.
+  ?element js:fragment ?elementFragment.
+    }
+  }
+  bind(concat("{\n", ?statementsFragment, "\n}") as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:FunctionBody
+    a sh:NodeShape;
+    sh:rule rule:FunctionBody;
+    sh:target target:FunctionBody;
+    skos:prefLabel 'FunctionBody shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:FunctionBody
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all call expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:FunctionBody.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+  
+  # ...but whose body array elements already have a js:fragment
+  filter not exists {
+    $this js:body ?array.
+    ?array rdf:first+ ?element.
+    filter not exists { ?element js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:FunctionBody
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+   
+  {select(group_concat(?elementFragment; separator="\n") as ?statementsFragment)
+  where {
+  $this js:body ?array.
+  ?array rdf:first+ ?element.
+  ?element js:fragment ?elementFragment.
+    }
+  }
+  bind(concat("{\n", ?statementsFragment, "\n}") as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:EmptyStatement
+    a sh:NodeShape;
+    sh:rule rule:EmptyStatement;
+    sh:target target:EmptyStatement;
+    skos:prefLabel 'EmptyStatement shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:EmptyStatement
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all call expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:EmptyStatement.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:EmptyStatement
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ";\n".
+  
+} where {}
+''';
+    rdfs:isDefinedBy js:.
+
+shp:WithStatement
+    a sh:NodeShape;
+    sh:rule rule:WithStatement;
+    sh:target target:WithStatement;
+    skos:prefLabel 'WithStatement shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:WithStatement
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all call expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:WithStatement.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+  
+  # ...but whose object already has a js:fragment
+  filter not exists {
+    $this js:object ?expression.
+    filter not exists { ?expression js:fragment []. }
+  }
+
+  # ...but whose body already has a js:fragment. Note: ESTree mentions one statement only and not an array of statements.
+  filter not exists {
+    $this js:body ?statement.
+    filter not exists { ?statement js:fragment []. }
+  } 
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:WithStatement
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  
+  $this js:object ?object.
+  ?object js:fragment ?objectFragment.
+  
+  $this js:body ?body.
+  ?body js:fragment ?bodyFragment.
+  
+  bind(concat('with (', ?objectFragment,')  {', ?bodyFragment, '}') as ?fragment)
+  
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:ReturnStatement
+    a sh:NodeShape;
+    sh:rule rule:ReturnStatement;
+    sh:target target:ReturnStatement;
+    skos:prefLabel 'ReturnStatement shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ReturnStatement
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all call expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:ReturnStatement.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+  
+  # ...but whose argument already has a js:fragment
+  filter not exists {
+    $this js:argument ?argument.
+    ?argument rdf:type js:Statement.
+    filter not exists { ?argument js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ReturnStatement
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  
+  $this js:argument ?argument.
+  
+  # either returns a statement or null
+  optional{
+  ?argument js:fragment ?argumentFragment.}
+    
+  bind(concat('return ', coalesce(?argumentFragment, 'null;/n')) as ?fragment)
+  
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:LabeledStatement
+    a sh:NodeShape;
+    sh:rule rule:LabeledStatement;
+    sh:target target:LabeledStatement;
+    skos:prefLabel 'LabeledStatement shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:LabeledStatement
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all call expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:LabeledStatement.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose label already has a js:fragment
+  filter not exists {
+    $this js:label ?label.
+    filter not exists { ?label js:fragment []. }
+  }
+  
+  # ...and whose body statement already has a js:fragment
+  filter not exists {
+    $this js:body ?statement.
+    filter not exists { ?statement js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:LabeledStatement
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+   
+  $this js:label ?label.  
+  ?label js:fragment ?labelFragment.       
+  $this js:body ?statement.
+  ?statement js:fragment ?statementFragment.
+ 
+  bind(concat(?labelFragment, ": ", ?statementFragment) as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+    
+shp:BreakStatement
+    a sh:NodeShape;
+    sh:rule rule:BreakStatement;
+    sh:target target:BreakStatement;
+    skos:prefLabel 'BreakStatement shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:BreakStatement
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all call expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:BreakStatement.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose label already has a js:fragment
+  filter not exists {
+    $this js:label ?label.
+    ?label rdf:type js:Identifier.
+    filter not exists { ?label js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:BreakStatement
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  optional {   
+  $this js:label ?label.  
+  ?label js:fragment ?labelFragment. }
+ 
+  bind(concat("break ", coalesce(?labelFragment,""), ";") as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:ContinueStatement
+    a sh:NodeShape;
+    sh:rule rule:ContinueStatement;
+    sh:target target:ContinueStatement;
+    skos:prefLabel 'ContinueStatement shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ContinueStatement
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all call expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:ContinueStatement.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose label already has a js:fragment
+  filter not exists {
+    $this js:label ?label.
+    ?label rdf:type js:Identifier.
+    filter not exists { ?label js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ContinueStatement
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  optional {   
+  $this js:label ?label.  
+  ?label js:fragment ?labelFragment. }
+ 
+  bind(concat("continue ", coalesce(?labelFragment,""), ";") as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
 shp:CallExpression
     a sh:NodeShape;
     sh:rule rule:CallExpression;
