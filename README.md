@@ -21,7 +21,7 @@ This document is intended for a diverse audience of software developers, data sc
 
 # Status
 
-Unstable & unfinished. Work in progress.
+Unstable & unfinished. Work in progress. Please note that the provided tooling in this repo is dependent on RDFlib, which at the moment contains a bug that prevents the code from running. See [issue 2957](https://github.com/RDFLib/rdflib/issues/2957). It is advised to use another triple store and SHACL engine for the moment.
 
 # Example - Hello World!
 
