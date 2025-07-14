@@ -1,0 +1,42 @@
+prefix ex:  <https://example.org/>
+prefix js:  <https://www.javascript.fin.rijksweb/model/def/>
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# Root node of the AST (Program node)
+ex:program1
+  a js:Program ;
+  js:body ex:expressionStatement1 . 
+
+# ExpressionStatement
+ex:expressionStatement1
+  a js:ExpressionStatement ;
+  js:expression ex:callExpression1 .
+
+# CallExpression node
+ex:callExpression1
+  a js:CallExpression ;
+  js:callee    ex:memberExpression1 ;
+  js:arguments ex:arguments1.
+
+# MemberExpression node
+ex:memberExpression1
+  a js:MemberExpression ;
+  js:object   ex:identifier_console ;
+  js:property ex:identifier_log ;
+  js:computed false .
+
+# Identifier 1
+ex:identifier_console
+  a js:Identifier ;
+  js:name '''console''' .  
+
+# Identifier 2
+ex:identifier_log
+  a js:Identifier ;
+  js:name '''log''' .
+
+# Literal
+ex:arguments1
+  a js:Literal ;
+  js:value '''Hello world!''' ;
+  js:raw '''\"hello world!\"''' .

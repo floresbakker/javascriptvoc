@@ -1,0 +1,1062 @@
+prefix dcm:       <http://purl.org/dc/dcmitype/>
+prefix dct:       <http://purl.org/dc/terms/>
+prefix decl:      <https://www.javascript.fin.rijksweb/model/decl/>
+prefix foaf:      <http://xmlns.com/foaf/0.1/>
+prefix js:        <https://www.javascript.fin.rijksweb/model/def/>
+prefix owl:       <http://www.w3.org/2002/07/owl#>
+prefix rdf:       <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix rdfs:      <http://www.w3.org/2000/01/rdf-schema#>
+prefix respec:    <https://respec.org/model/>
+prefix rule:      <https://www.javascript.fin.rijksweb/model/rule/>
+prefix section:   <https://www.javascript.fin.rijksweb/model/section/>
+prefix sh:        <http://www.w3.org/ns/shacl#>
+prefix shp:       <https://www.javascript.fin.rijksweb/model/shp/>
+prefix skos:      <http://www.w3.org/2004/02/skos/core#>
+prefix standard:  <https://www.javascript.fin.rijksweb/model/>
+prefix status:    <http://purl.org/adms/status/>
+prefix target:    <https://www.javascript.fin.rijksweb/model/target/>
+prefix vann:      <http://purl.org/vocab/vann/>
+prefix void:      <http://rdfs.org/ns/void#>
+prefix xsd:       <http://www.w3.org/2001/XMLSchema#>
+
+  js:
+    a
+      owl:Ontology,
+      void:Dataset;
+    dct:created '2024-09-29'^^xsd:date;
+    dct:creator
+      'Flores Bakker';
+    dct:language 'iso639-1:en';
+    dct:license 'http://creativecommons.org/licenses/by/4.0'^^xsd:anyURI;
+    dct:publisher <https://rijksfinancien.nl>;
+    dct:status status:UnderDevelopment;
+    dct:subject 'Javascript'@en;
+    dct:title 'Javascript Vocabulary'@en;
+    dct:source <https://github.com/floresbakker/javascriptvoc>;
+    
+    dct:abstract """The Javascript Vocabulary provides a formal representation of the Javascript programming language, enabling the modeling and generation of Javascript code through an abstract syntax tree (AST) framework. It defines classes and properties to describe the various components of Javascript syntax, including functions, classes, statements, expressions, and data structures. Additionally, it incorporates SHACL shapes for validating Javascript code structures and supports algorithms for serializing Javascript code from RDF representations. This vocabulary enhances code generation and manipulation, bridging Javascript with broader semantic web technologies."""@en;
+
+    dct:description """The Javascript Vocabulary formalizes the Javascript programming language, offering a structured representation of its syntax and semantics. It defines classes for different Javascript constructs, such as 'js:Statement' for statements, 'js:Function' for functions, and properties to capture relationships between these components. Central to this vocabulary is the class 'js:Node', which serves as a building block for all types of Javascript code segments. Each code unit can have attributes, such as 'js:operator' for operators within expressions and 'js:argument' for defining parameters. The vocabulary also includes SHACL shapes to validate the correctness of Javascript code structures, ensuring that generated code adheres to Javascript syntax rules. These shapes facilitate the creation of well-formed Javascript code that can be executed reliably. This comprehensive approach allows users to leverage RDF representations to generate Javascript code, enabling seamless integration of semantic technologies with programming tasks.
+    
+    The Javascript Core Vocabulary models the Javascript language based on its Abstract Syntax Tree (AST), as described in EStree[https://github.com/estree/estree]. 
+    
+"""@en;
+
+    respec:introduction '''In today’s fast-paced development environment, the need for effective programming practices and tools is essential for managing code complexity. As organizations strive to maintain high-quality codebases, they face challenges related to code generation, validation, and reuse. The Javascript Vocabulary addresses these challenges by providing a structured framework to model and generate Javascript code through an abstract syntax tree representation, enhancing the agility, readability and reliability of programming practices.'''@en;
+
+    respec:background '''The evolving landscape of software development demands tools that facilitate rapid code generation and validation, but safeguard the meaning and intent of the code. Javascript, with its rich ecosystem and diverse applications, requires robust frameworks to handle its syntax and semantics effectively. The complexity of Javascript constructs poses challenges for developers, particularly in ensuring compliance with best practices and coding standards, but also in explaining the logic of each program. The Javascript Vocabulary meets these challenges by offering a formalized structure for representing Javascript code, making it accessible now and in the future.'''@en;
+
+    respec:objective '''To tackle the challenges of Javascript code generation, maintenance, reuse and validation, we present the Javascript Vocabulary - a transformative framework designed to support users in managing Javascript programming. This vocabulary enables users to (1) model and represent Javascript code constructs, (2) generate and validate Javascript code programmatically, and (3) ensure adherence to Javascript syntax and best practices. By leveraging the power of RDF and the flexibility of an abstract syntax tree, the Javascript Vocabulary enhances the efficiency and reliability of code generation in programming environments, fostering better coding practices and facilitating collaboration in software development projects.'''@en;
+
+    respec:audience '''This document is intended for a diverse audience of software developers, data scientists, educators, and anyone involved in Javascript programming and code management. It aims to support users seeking to enhance their understanding and application of Javascript within the context of semantic technologies and code generation.'''@en;
+    
+    foaf:depiction 'https://www.rijksfinancien.nl/themes/custom/indicia_theme/files/logo-rijksoverheid.svg'^^xsd:anyURI;
+    foaf:homepage 'https://www.rijksfinancien.nl/'^^xsd:anyURI;
+    owl:imports
+      dct:,
+      owl:,
+      rdf:,
+      rdfs:,
+      skos:;
+    sh:declare
+      decl:js,
+      decl:rdf,
+      decl:rdfs,
+      decl:xsd;      
+    owl:versionInfo '0.1.0';
+    vann:preferredNamespacePrefix 'js';
+    vann:preferredNamespaceUri 'https://www.javascript.fin.rijksweb/model/def/';
+    void:uriRegexPattern '^https://www.javascript.fin.rijksweb/model/def/';
+    void:uriSpace 'https://www.javascript.fin.rijksweb/model/def/'^^xsd:anyURI;
+    skos:example """
+
+prefix ex:  <https://example.org/>
+prefix js:  <https://www.javascript.fin.rijksweb/model/def/>
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# Root node of the AST (Program node)
+ex:program1
+  a js:Program ;
+  js:body ex:expressionStatement1 ;
+  js:fragment '''console.log("Hello world!");'''.  
+
+# ExpressionStatement
+ex:expressionStatement1
+  a js:ExpressionStatement ;
+  js:expression ex:callExpression1;
+  js:fragment '''console.log("Hello world!");'''.
+
+# CallExpression node
+ex:callExpression1
+  a js:CallExpression ;
+  js:callee    ex:memberExpression1 ;
+  js:arguments ex:arguments1 ;
+  js:fragment '''console.log("Hello world!")'''.
+
+# MemberExpression node
+ex:memberExpression1
+  a js:MemberExpression ;
+  js:object   ex:identifier_console ;
+  js:property ex:identifier_log ;
+  js:computed false;
+  js:fragment '''console.log'''.
+
+# Identifier 1
+ex:identifier_console
+  a js:Identifier ;
+  js:name '''console''' ;
+  js:fragment '''console'''.  
+
+# Identifier 2
+ex:identifier_log
+  a js:Identifier ;
+  js:name '''log''';
+  js:fragment '''log'''.
+
+# Literal
+ex:arguments1
+  a js:Literal ;
+  js:value '''Hello world!''' ;
+  js:raw '''\"hello world!\"''';
+  js:fragment '''"Hello world!"'''.  
+
+"""@en.
+
+  decl:js
+    sh:prefix "js";
+    sh:namespace "https://www.javascript.fin.rijksweb.nl/model/def/"^^xsd:anyURI.
+
+  decl:rdf
+    sh:prefix "rdf";
+    sh:namespace "http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI.
+
+  decl:rdfs
+    sh:prefix "rdfs";
+    sh:namespace "http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI.
+
+  decl:xsd
+    sh:prefix "xsd";
+    sh:namespace "http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI.
+
+  standard:javascript
+    a dct:Standard;
+    dct:created '2024-04-07'^^xsd:date;
+    dct:source 'https://github.com/estree/estree'^^xsd:anyURI;
+    skos:prefLabel 'Javascript'@en;
+    rdfs:isDefinedBy js:. 
+
+### Sections from the Javascript Specification ###
+    
+### Javascript voc ###
+
+# class: Abstract Syntax Tree for Javascript 
+
+js:AbstractSyntaxTree
+  a owl:Class ;
+  dct:conformsTo <http://example.org/section/AbstractSyntaxTree> ;
+  skos:definition 'Represents a tree that models a Javascript program. It consists of a hierarchy of connected nodes that model the structure and syntax of a Javascript program.'@en ;
+  skos:prefLabel 'Abstract Syntax Tree'@en ;
+  rdfs:isDefinedBy js: .
+
+js:Position
+  a owl:Class ;
+  dct:conformsTo <http://example.org/section/Position> ;
+  skos:definition 'Represents a position within the Javascript abstract syntax tree.'@en ;
+  skos:prefLabel 'Position'@en ;
+  rdfs:isDefinedBy js: .
+
+js:SourceLocation
+  a owl:Class ;
+  dct:conformsTo <http://example.org/section/SourceLocation> ;
+  skos:definition 'Represents a source location within the Javascript abstract syntax tree.'@en ;
+  skos:prefLabel 'Source location'@en ;
+  rdfs:isDefinedBy js: .
+
+js:Node
+  a owl:Class ;
+  dct:conformsTo <http://example.org/section/Node> ;
+  skos:definition 'Represents an object within the Javascript abstract syntax tree.'@en ;
+  skos:prefLabel 'Node'@en ;
+  rdfs:isDefinedBy js: .
+
+js:Program
+  a owl:Class;
+  rdfs:subClassOf js:NonTerminalNode;
+  dct:conformsTo section:Program;
+  skos:definition 'Represents a program in the Javascript syntax.'@en;
+  skos:prefLabel 'Program'@en;
+  rdfs:isDefinedBy js:.
+
+js:Function
+  a owl:Class;
+  rdfs:subClassOf js:NonTerminalNode;
+  dct:conformsTo section:Function;
+  skos:definition 'Represents a function in the Javascript syntax.'@en;
+  skos:prefLabel 'Function'@en;
+  rdfs:isDefinedBy js:.
+
+js:Statement
+  a owl:Class;
+  rdfs:subClassOf js:NonTerminalNode;
+  dct:conformsTo section:Statement;
+  skos:definition 'Represents a statement in the Javascript syntax.'@en;
+  skos:prefLabel 'Statement'@en;
+  rdfs:isDefinedBy js:.
+
+js:Property
+  a owl:Class;
+  rdfs:subClassOf js:NonTerminalNode;
+  dct:conformsTo section:Property;
+  skos:definition 'Represents a property in the Javascript syntax.'@en;
+  skos:prefLabel 'Property'@en;
+  rdfs:isDefinedBy js:.
+
+js:Pattern
+  a owl:Class;
+  rdfs:subClassOf js:TerminalNode;
+  dct:conformsTo section:Pattern;
+  skos:definition 'Represents a pattern in the Javascript syntax.'@en;
+  skos:prefLabel 'Pattern'@en;
+  rdfs:isDefinedBy js:.
+
+js:ExpressionStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "Expression Statement"@en ;
+  skos:definition "A statement that consists of a single expression."@en ;
+  rdfs:isDefinedBy js: .
+
+js:Directive
+  a owl:Class ;
+  rdfs:subClassOf js:ExpressionStatement ;
+  skos:prefLabel "Directive"@en ;
+  skos:definition "A directive statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:BlockStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "Block Statement"@en ;
+  skos:definition "A block statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:EmptyStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "Empty Statement"@en ;
+  skos:definition "An empty statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:DebuggerStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "Debugger Statement"@en ;
+  skos:definition "A debugger statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:WithStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "With Statement"@en ;
+  skos:definition "A with statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:ReturnStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "Return Statement"@en ;
+  skos:definition "A return statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:LabeledStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "Labeled Statement"@en ;
+  skos:definition "A labeled statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:BreakStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "Break Statement"@en ;
+  skos:definition "A break statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:ContinueStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "Continue Statement"@en ;
+  skos:definition "A continue statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:IfStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "If Statement"@en ;
+  skos:definition "An if statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:SwitchStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "Switch Statement"@en ;
+  skos:definition "A switch statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:ThrowStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "Throw Statement"@en ;
+  skos:definition "A throw statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:TryStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "Try Statement"@en ;
+  skos:definition "A try statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:WhileStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "While Statement"@en ;
+  skos:definition "A while statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:DoWhileStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "Do While Statement"@en ;
+  skos:definition "A do while statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:ForStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "For Statement"@en ;
+  skos:definition "A for statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:ForInStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "For In Statement"@en ;
+  skos:definition "A for in statement."@en ;
+  rdfs:isDefinedBy js: .
+
+js:Declaration
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "Declaration"@en ;
+  skos:definition "A declaration."@en ;
+  rdfs:isDefinedBy js: .
+
+js:VariableDeclaration
+  a owl:Class ;
+  rdfs:subClassOf js:Declaration ;
+  skos:prefLabel "Variable declaration"@en ;
+  skos:definition "A variable declaration."@en ;
+  rdfs:isDefinedBy js: .
+
+js:SwitchCase
+  a owl:Class;
+  rdfs:subClassOf js:NonTerminalNode;
+  dct:conformsTo section:SwitchCase;
+  skos:definition 'Represents a switch case statement in the Javascript syntax.'@en;
+  skos:prefLabel 'Switch case'@en;
+  rdfs:isDefinedBy js:.
+
+js:CatchClause
+  a owl:Class;
+  rdfs:subClassOf js:NonTerminalNode;
+  dct:conformsTo section:CatchClause;
+  skos:definition 'Represents a catch clause statement in the Javascript syntax.'@en;
+  skos:prefLabel 'Catch clause'@en;
+  rdfs:isDefinedBy js:.
+
+js:VariableDeclarator
+  a owl:Class;
+  rdfs:subClassOf js:NonTerminalNode;
+  dct:conformsTo section:VariableDeclarator;
+  skos:definition 'Represents a variable declarator in the Javascript syntax.'@en;
+  skos:prefLabel 'Variable declarator'@en;
+  rdfs:isDefinedBy js:.
+
+js:Expression
+  a owl:Class;
+  rdfs:subClassOf js:NonTerminalNode;
+  dct:conformsTo section:Expression;
+  skos:definition 'Represents an expression in the Javascript syntax.'@en;
+  skos:prefLabel 'Expression'@en;
+  rdfs:isDefinedBy js:.
+
+js:FunctionBody
+  a owl:Class ;
+  rdfs:subClassOf js:BlockStatement ;
+  skos:prefLabel "Function body"@en ;
+  skos:definition "A function body."@en ;
+  rdfs:isDefinedBy js: .
+
+js:ThisExpression
+  a owl:Class ;
+  rdfs:subClassOf js:Expression ;
+  skos:prefLabel "This Expression"@en ;
+  skos:definition "An expression representing 'this'."@en ;
+  rdfs:isDefinedBy js: .
+
+js:ArrayExpression
+  a owl:Class ;
+  rdfs:subClassOf js:Expression ;
+  skos:prefLabel "Array Expression"@en ;
+  skos:definition "An expression representing an array."@en ;
+  rdfs:isDefinedBy js: .
+
+js:ObjectExpression
+  a owl:Class ;
+  rdfs:subClassOf js:Expression ;
+  skos:prefLabel "Object Expression"@en ;
+  skos:definition "An expression representing an object."@en ;
+  rdfs:isDefinedBy js: .
+
+js:UnaryExpression
+  a owl:Class ;
+  rdfs:subClassOf js:Expression ;
+  skos:prefLabel "Unary Expression"@en ;
+  skos:definition "An expression representing an unary."@en ;
+  rdfs:isDefinedBy js: .
+
+js:UpdateExpression
+  a owl:Class ;
+  rdfs:subClassOf js:Expression ;
+  skos:prefLabel "Update Expression"@en ;
+  skos:definition "An expression representing an update."@en ;
+  rdfs:isDefinedBy js: .
+
+js:BinaryExpression
+  a owl:Class ;
+  rdfs:subClassOf js:Expression ;
+  skos:prefLabel "Binary Expression"@en ;
+  skos:definition "An expression representing a binary."@en ;
+  rdfs:isDefinedBy js: .
+
+js:AssignmentExpression
+  a owl:Class ;
+  rdfs:subClassOf js:Expression ;
+  skos:prefLabel "Assignment Expression"@en ;
+  skos:definition "An expression representing an assignment."@en ;
+  rdfs:isDefinedBy js: .
+
+js:LogicalExpression
+  a owl:Class ;
+  rdfs:subClassOf js:Expression ;
+  skos:prefLabel "Logical Expression"@en ;
+  skos:definition "A logical expression."@en ;
+  rdfs:isDefinedBy js: .
+
+js:ConditionalExpression
+  a owl:Class ;
+  rdfs:subClassOf js:Expression ;
+  skos:prefLabel "Conditional Expression"@en ;
+  skos:definition "An expression representing a conditional."@en ;
+  rdfs:isDefinedBy js: .
+
+js:CallExpression
+  a owl:Class ;
+  rdfs:subClassOf js:Expression ;
+  skos:prefLabel "Call Expression"@en ;
+  skos:definition "An expression representing a function or method call."@en ;
+  rdfs:isDefinedBy js: .
+
+js:NewExpression
+  a owl:Class ;
+  rdfs:subClassOf js:Expression ;
+  skos:prefLabel "New Expression"@en ;
+  skos:definition "A new expression."@en ;
+  rdfs:isDefinedBy js: .
+
+js:SequenceExpression
+  a owl:Class ;
+  rdfs:subClassOf js:Expression ;
+  skos:prefLabel "Sequence Expression"@en ;
+  skos:definition "An expression representing a sequence."@en ;
+  rdfs:isDefinedBy js: .
+
+js:MemberExpression
+  a owl:Class ;
+  rdfs:subClassOf js:NonTerminalNode ;
+  owl:unionOf (js:Expression js:Pattern);
+  skos:prefLabel "Member Expression"@en ;
+  skos:definition "An expression accessing a property of an object."@en ;
+  rdfs:isDefinedBy js: .
+
+js:FunctionExpression
+  a owl:Class ;
+  rdfs:subClassOf js:NonTerminalNode ;
+  owl:intersectionOf (js:Function js:Expression);
+  skos:prefLabel "Function Expression"@en ;
+  skos:definition "An expression calling a function."@en ;
+  rdfs:isDefinedBy js: .
+
+js:FunctionDeclaration
+  a owl:Class ;
+  rdfs:subClassOf js:NonTerminalNode ;
+  owl:intersectionOf (js:Function js:Declaration);
+  skos:prefLabel "Function Declaration"@en ;
+  skos:definition "A function declaration."@en ;
+  rdfs:isDefinedBy js: .
+
+js:Identifier
+  a owl:Class ;
+  rdfs:subClassOf js:TerminalNode ;
+  owl:unionOf (js:Expression js:Pattern);
+  skos:prefLabel "Identifier"@en ;
+  skos:definition "A terminal node representing a variable or function name."@en ;
+  rdfs:isDefinedBy js: .
+
+js:Literal
+  a owl:Class ;
+  rdfs:subClassOf js:TerminalNode ;
+  skos:prefLabel "Literal"@en ;
+  skos:definition "A terminal node representing a fixed value like a string, number, or boolean."@en ;
+  rdfs:isDefinedBy js: .
+
+js:RegExpLiteral
+  a owl:Class ;
+  rdfs:subClassOf js:Literal ;
+  skos:prefLabel "RegExpLiteral"@en ;
+  skos:definition "A terminal node representing a regex pattern."@en ;
+  rdfs:isDefinedBy js: .
+
+### Properties
+
+js:node 
+   rdf:type owl:ObjectProperty;
+   skos:prefLabel 'node';
+   skos:definition 'Superproperty to connect a parent node with a child node within an Abstract Syntax Tree of Javascript';
+   rdfs:domain js:Node;
+   rdfs:range js:Node.
+   
+js:body
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'body';
+   skos:definition 'body'.
+
+js:id
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'id';
+   skos:definition 'id'.
+
+js:expression
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'expression';
+   skos:definition 'expression'.
+
+js:callee
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'callee';
+   skos:definition 'callee'.
+
+js:arguments
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'arguments';
+   skos:definition 'arguments'.
+
+js:object
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'object';
+   skos:definition 'object'.
+
+js:property
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'property';
+   skos:definition 'property'.
+
+js:operator
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'operator';
+   skos:definition 'operator'.
+
+js:left
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'left';
+   skos:definition 'left'.
+
+js:right
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'right';
+   skos:definition 'right'.
+
+js:argument
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'argument';
+   skos:definition 'argument'.
+
+js:value
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'value';
+   skos:definition 'value'.
+
+js:key
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'key';
+   skos:definition 'key'.
+
+js:properties
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'properties';
+   skos:definition 'properties'.
+
+js:elements
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'elements';
+   skos:definition 'elements'.
+
+js:init
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'init';
+   skos:definition 'init'.
+
+js:declarations
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'declarations';
+   skos:definition 'declarations'.
+
+js:test
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'test';
+   skos:definition 'test'.
+
+js:update
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'update';
+   skos:definition 'update'.
+
+js:param
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'param';
+   skos:definition 'param'.
+
+js:block
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'handler';
+   skos:definition 'finalizer'.
+
+js:consequent
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'consequent';
+   skos:definition 'consequent'.
+
+js:discriminant
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'discriminant';
+   skos:definition 'discriminant'.
+
+js:cases
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'cases';
+   skos:definition 'cases'.
+
+js:alternate
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'alternate';
+   skos:definition 'alternate'.
+
+js:label
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'label';
+   skos:definition 'label'.
+
+js:directive
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'directive';
+   skos:definition 'directive'.
+
+js:params
+   rdf:type owl:ObjectProperty;
+   rdfs:subPropertyOf js:node;
+   skos:prefLabel 'params';
+   skos:definition 'params'.
+
+### Shapes ###
+
+shp:Program
+    a sh:NodeShape;
+    sh:rule rule:Program;
+    sh:target target:Program;
+    skos:prefLabel 'Program shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:Program
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all call expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:Program.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+  
+  # ...but whose body array elements already have a js:fragment
+  filter not exists {
+    $this js:body ?array.
+    ?array rdf:first* ?element.
+    filter not exists { ?element js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:Program
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  
+  {select(group_concat(?elementFragment; separator="\n") as ?fragment)
+  where {
+  $this js:body ?array.
+  ?array rdf:first* ?element.
+  ?element js:fragment ?elementFragment.
+    }  
+  }
+}
+''';
+    rdfs:isDefinedBy js:.
+
+shp:ExpressionStatement
+    a sh:NodeShape;
+    sh:rule rule:ExpressionStatement;
+    sh:target target:ExpressionStatement;
+    skos:prefLabel 'ExpressionStatement shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ExpressionStatement
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all call expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:ExpressionStatement.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+  
+  # ...but whose child node expression already has a js:fragment
+  filter not exists {
+    $this js:expression ?expression.
+    filter not exists { ?expression js:fragment []. }
+  }  
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ExpressionStatement
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  
+  $this js:expression ?expression.
+  ?expression js:fragment ?expressionFragment.
+  
+  bind(concat(?expressionFragment, ";") as ?fragment)
+  
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:CallExpression
+    a sh:NodeShape;
+    sh:rule rule:CallExpression;
+    sh:target target:CallExpression;
+    skos:prefLabel 'CallExpression shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:CallExpression
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all call expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:CallExpression.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+  
+  # ...but whose callee already has a js:fragment
+  filter not exists {
+    $this js:callee ?expression.
+    filter not exists { ?expression js:fragment []. }
+  }
+  
+  # ...but whose argument array already has a js:fragment
+  filter not exists {
+    $this js:arguments ?arrayOfExpressions.
+    filter(?arrayOfExpressions != rdf:nil)
+    filter not exists {?arrayOfExpressions js:fragment []. }
+  }  
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:CallExpression
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  
+  $this js:callee ?callee.
+  ?callee js:fragment ?calleeFragment.
+  
+  OPTIONAL{
+   {select (group_concat(?argumentFragment; separator=",") as ?argumentsFragment)
+     where {
+     $this js:arguments ?arrayOfExpressions.
+     ?arrayOfExpressions js:fragment ?argumentFragment.
+   }}
+  }
+  
+  bind(concat(?calleeFragment, "(", coalesce(?argumentsFragment,""), ")") as ?fragment)
+  
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:MemberExpression
+    a sh:NodeShape;
+    sh:rule rule:MemberExpression;
+    sh:target target:MemberExpression;
+    skos:prefLabel 'MemberExpression shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:MemberExpression
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all call expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:MemberExpression.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+  
+  # ...but whose object already has a js:fragment
+  filter not exists {
+    $this js:object ?expression.
+    filter not exists { ?expression js:fragment []. }
+  }
+
+  # ...but whose property already has a js:fragment
+  filter not exists {
+    $this js:property ?expression.
+    filter not exists { ?expression js:fragment []. }
+  } 
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:MemberExpression
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  
+  $this js:computed ?computed.
+  $this js:object ?object.
+  ?object js:fragment ?objectFragment.
+  
+  OPTIONAL{
+  $this js:property ?property.
+  ?property js:fragment ?propertyFragment.
+  }
+  
+  bind(if(?computed, concat(?objectFragment, "[", ?propertyFragment, "]"), 
+                     concat(?objectFragment, ".", ?propertyFragment)) 
+  as ?fragment)
+  
+}''';
+    rdfs:isDefinedBy js:.
+    
+shp:Identifier
+    a sh:NodeShape;
+    sh:rule rule:Identifier;
+    sh:target target:Identifier;
+    skos:prefLabel 'Identifier shape'@en;
+    rdfs:isDefinedBy js:.    
+
+target:Identifier
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all character sequence nodes in the javascript logic...
+  $this a/rdfs:subClassOf* js:Identifier.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+  
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:Identifier
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  
+  $this js:name ?fragment.
+  
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:Literal
+    a sh:NodeShape;
+    sh:rule rule:Literal;
+    sh:target target:Literal;
+    skos:prefLabel 'Literal shape'@en;
+    rdfs:isDefinedBy js:.    
+
+target:Literal
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all character sequence nodes in the javascript logic...
+  $this a/rdfs:subClassOf* js:Literal.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+  
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:Literal
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  
+  $this js:value ?valueFragment.
+  bind(if(datatype(?valueFragment)=xsd:string, concat('"',?valueFragment, '"'), ?valueFragment) as ?fragment)
+  
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:Operator
+    a sh:NodeShape;
+    sh:rule rule:Operator;
+    sh:target target:Operator;
+    skos:prefLabel 'Operator shape'@en;
+    rdfs:isDefinedBy js:.    
+
+target:Operator
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all character sequence nodes in the javascript logic...
+  $this a/rdfs:subClassOf* js:Operator.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+  
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:Operator
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  
+  $this js:operator ?fragment.
+  
+}''';
+    rdfs:isDefinedBy js:.
+
