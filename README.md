@@ -35,13 +35,13 @@ This can be modeled in RDF using the Javascript Vocabulary:
 
 ```
 prefix ex:  <https://example.org/>
-prefix js:  <https://www.javascript.org/model/def/>
+prefix js:  <https://www.javascript.fin.rijksweb/model/def/>
 prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
 # Root node of the AST (Program node)
 ex:program1
   a js:Program ;
-  js:body ex:expressionStatement1 ;
+  js:body (ex:expressionStatement1) ;
   js:fragment '''console.log("Hello world!");'''.  
 
 # ExpressionStatement
@@ -54,35 +54,35 @@ ex:expressionStatement1
 ex:callExpression1
   a js:CallExpression ;
   js:callee    ex:memberExpression1 ;
-  js:arguments ex:arguments1 ;
-  js:fragment '''console.log("Hello world!")'''.
+  js:arguments (ex:argument1) ;
+  js:fragment '''console.log("Hello world!")'''.  
 
 # MemberExpression node
 ex:memberExpression1
   a js:MemberExpression ;
-  js:object   ex:identifier_console ;
-  js:property ex:identifier_log ;
+  js:object   ex:identifierConsole ;
+  js:property ex:identifierLog ;
   js:computed false;
   js:fragment '''console.log'''.
 
-# Identifier 1
-ex:identifier_console
+# Identifier object 'console'
+ex:identifierConsole
   a js:Identifier ;
   js:name '''console''' ;
   js:fragment '''console'''.  
 
-# Identifier 2
-ex:identifier_log
+# Identifier property 'log'
+ex:identifierLog
   a js:Identifier ;
   js:name '''log''';
   js:fragment '''log'''.
 
 # Literal
-ex:arguments1
+ex:argument1
   a js:Literal ;
   js:value '''Hello world!''' ;
   js:raw '''\"hello world!\"''';
-  js:fragment '''"Hello world!"'''.  
+  js:fragment '''"Hello world!"'''.   
 
 ``` 
  
