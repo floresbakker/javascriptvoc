@@ -790,6 +790,89 @@ js:params
 
 ### Shapes ###
 
+shp:Identifier
+    a sh:NodeShape;
+    sh:rule rule:Identifier;
+    sh:target target:Identifier;
+    skos:prefLabel 'Identifier shape'@en;
+    rdfs:isDefinedBy js:.    
+
+target:Identifier
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all identifiers in the javascript logic...
+  $this a/rdfs:subClassOf* js:Identifier.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+  
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:Identifier
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  
+  $this js:name ?fragment.
+  
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:Literal
+    a sh:NodeShape;
+    sh:rule rule:Literal;
+    sh:target target:Literal;
+    skos:prefLabel 'Literal shape'@en;
+    rdfs:isDefinedBy js:.    
+
+target:Literal
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all literals in the javascript logic...
+  $this a/rdfs:subClassOf* js:Literal.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+  
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:Literal
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  
+  $this js:value ?valueFragment.
+  bind(if(datatype(?valueFragment)=xsd:string, concat('"',?valueFragment, '"'), ?valueFragment) as ?fragment)
+  
+}''';
+    rdfs:isDefinedBy js:.
+
 shp:Program
     a sh:NodeShape;
     sh:rule rule:Program;
@@ -1140,7 +1223,7 @@ select $this {
   # ...but whose body already has a js:fragment.
   filter not exists {
     $this js:body ?statement.
-    ?statement rdf:type/rdfs:subClassOf js:Statement.
+    ?statement rdf:type/rdfs:subClassOf* js:Statement.
     filter not exists { ?statement js:fragment []. }
   } 
 }''';
@@ -2251,7 +2334,7 @@ select $this {
   # ...but whose value already has a js:fragment
   filter not exists {
     $this js:value ?value.
-    ?value rdf:type/rdfs:subClassOf js:Expression.
+    ?value rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?value js:fragment []. }
   }
 }''';
@@ -2274,7 +2357,7 @@ construct {
         js:fragment ?keyFragment.
     
   $this js:value ?value.
-  ?value rdf:type/rdfs:subClassOf js:Expression;
+  ?value rdf:type/rdfs:subClassOf* js:Expression;
          js:fragment ?valueFragment.
 
   $this js:kind ?kind.
@@ -2307,7 +2390,7 @@ select $this {
   # ...but whose value already has a js:fragment
   filter not exists {
     $this js:argument ?argument.
-    ?argument rdf:type/rdfs:subClassOf js:Expression.
+    ?argument rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?argument js:fragment []. }
   }
 }''';
@@ -2363,7 +2446,7 @@ select $this {
   # ...but whose value already has a js:fragment
   filter not exists {
     $this js:argument ?argument.
-    ?argument rdf:type/rdfs:subClassOf js:Expression.
+    ?argument rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?argument js:fragment []. }
   }
 }''';
@@ -2419,14 +2502,14 @@ select $this {
   # ...but whose left operand already has a js:fragment
   filter not exists {
     $this js:left ?left.
-    ?left rdf:type/rdfs:subClassOf js:Expression.
+    ?left rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?left js:fragment []. }
   }
 
   # ...but whose right operand already has a js:fragment
   filter not exists {
     $this js:right ?right.
-    ?right rdf:type/rdfs:subClassOf js:Expression.
+    ?right rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?right js:fragment []. }
   }
 }''';
@@ -2492,7 +2575,7 @@ select $this {
   # ...but whose right operand already has a js:fragment
   filter not exists {
     $this js:right ?right.
-    ?right rdf:type/rdfs:subClassOf js:Expression.
+    ?right rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?right js:fragment []. }
   }
 }''';
@@ -2551,14 +2634,14 @@ select $this {
   # ...but whose left operand already has a js:fragment
   filter not exists {
     $this js:left ?left.
-    ?left rdf:type/rdfs:subClassOf js:Expression.    
+    ?left rdf:type/rdfs:subClassOf* js:Expression.    
     filter not exists { ?left js:fragment []. }
   }
 
   # ...but whose right operand already has a js:fragment
   filter not exists {
     $this js:right ?right.
-    ?right rdf:type/rdfs:subClassOf js:Expression.
+    ?right rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?right js:fragment []. }
   }
 }''';
@@ -2583,7 +2666,7 @@ construct {
     js:right ?right.
   
   ?left
-    rdf:type/rdfs:subClassOf js:Expression.
+    rdf:type/rdfs:subClassOf* js:Expression.
     js:fragment ?leftFragment.
 
   ?right
@@ -2618,21 +2701,21 @@ select $this {
   # ...but whose test expression already has a js:fragment
   filter not exists {
     $this js:test ?test.
-    ?test rdf:type/rdfs:subClassOf js:Expression.    
+    ?test rdf:type/rdfs:subClassOf* js:Expression.    
     filter not exists { ?test js:fragment []. }
   }
 
   # ...and whose alternate expression already has a js:fragment
   filter not exists {
     $this js:alternate ?alternate.
-    ?alternate rdf:type/rdfs:subClassOf js:Expression.
+    ?alternate rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?alternate js:fragment []. }
   }
 
   # ...and whose consequent expression already has a js:fragment
   filter not exists {
     $this js:consequent ?consequent.
-    ?consequent rdf:type/rdfs:subClassOf js:Expression.
+    ?consequent rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?consequent js:fragment []. }
   }
 }''';
@@ -2652,15 +2735,15 @@ construct {
 } where {
 
   $this js:test ?test.
-  ?test rdf:type/rdfs:subClassOf js:Expression;
+  ?test rdf:type/rdfs:subClassOf* js:Expression;
         js:fragment ?testFragment.
 
   $this js:consequent ?consequent.
-  ?consequent rdf:type/rdfs:subClassOf js:Expression;
+  ?consequent rdf:type/rdfs:subClassOf* js:Expression;
               js:fragment ?consequentFragment.
 
   $this js:alternate ?alternate.
-  ?alternate rdf:type/rdfs:subClassOf js:Expression;
+  ?alternate rdf:type/rdfs:subClassOf* js:Expression;
              js:fragment ?alternateFragment.
 
   bind(concat(?testFragment, ' ? ', ?consequentFragment, ' : ', ?alternateFragment) as ?fragment)
@@ -2795,87 +2878,130 @@ construct {
   
 }''';
     rdfs:isDefinedBy js:.
+
+shp:NewExpression
+    a sh:NodeShape;
+    sh:rule rule:NewExpression;
+    sh:target target:NewExpression;
+    skos:prefLabel 'NewExpression shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:NewExpression
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all conditional expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:NewExpression.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose callee expression already has a js:fragment
+  filter not exists {
+    $this js:callee ?callee.
+    ?callee rdf:type/rdfs:subClassOf* js:Expression.    
+    filter not exists { ?callee js:fragment []. }
+  }
+
+  # ...and whose arguments expression already has a js:fragment
+  filter not exists {
+    $this js:arguments ?array.
+    ?array rdf:first+ ?argument.
+    ?argument rdf:type/rdfs:subClassOf* js:Expression.
+    filter not exists { ?argument js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:NewExpression
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  $this js:callee ?callee.
+  ?callee rdf:type/rdfs:subClassOf* js:Expression;
+          js:fragment ?calleeFragment.
+
+  {select (group_concat(?argumentFragment; separator=",") as ?argumentsFragment)
+     where {
+     $this js:arguments ?arrayOfArguments.
+     ?arrayOfArguments rdf:first+ ?argument.
+     ?argument js:fragment ?argumentFragment.
+    }
+   }
+
+  bind(concat("new ", ?calleeFragment, ' (', ?argumentsFragment, ')') as ?fragment)
+}
+''';
+    rdfs:isDefinedBy js:.
+
+shp:SequenceExpression
+    a sh:NodeShape;
+    sh:rule rule:SequenceExpression;
+    sh:target target:SequenceExpression;
+    skos:prefLabel 'SequenceExpression shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:SequenceExpression
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all conditional expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:SequenceExpression.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...and whose expressions already have a js:fragment
+  filter not exists {
+    $this js:expressions ?array.
+    ?array rdf:first+ ?expression.
+    ?expression rdf:type/rdfs:subClassOf* js:Expression.
+    filter not exists { ?expression js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:SequenceExpression
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  {select (group_concat(?expressionFragment; separator=",") as ?expressionsFragment)
+     where {
+     $this js:expressions ?arrayOfExpressions.
+     ?arrayOfExpressions rdf:first+ ?expression.
+     ?expression rdf:type/rdfs:subClassOf* js:Expression.     
+     ?expression js:fragment ?expressionFragment.
+    }
+   }
+
+  bind(concat('(', ?expressionsFragment, ')') as ?fragment)
+}
+''';
+    rdfs:isDefinedBy js:.
     
-shp:Identifier
-    a sh:NodeShape;
-    sh:rule rule:Identifier;
-    sh:target target:Identifier;
-    skos:prefLabel 'Identifier shape'@en;
-    rdfs:isDefinedBy js:.    
 
-target:Identifier
-    a sh:SPARQLTarget;
-    rdfs:comment ''@en;
-    sh:prefixes js:;
-    sh:select '''
-select $this {
-
-  # Select all identifiers in the javascript logic...
-  $this a/rdfs:subClassOf* js:Identifier.
-  
-  # ...that do not yet have a javascript fragment.
-  filter not exists { $this js:fragment []. }
-  
-}''';
-    rdfs:isDefinedBy js:.
-
-rule:Identifier
-    a sh:SPARQLRule;
-    rdfs:comment ''@en;
-    skos:prefLabel ''@en;
-    sh:prefixes js:;
-    sh:construct '''
-construct {
-
-  # Assert the new javascript fragment for this javascript node
-  $this js:fragment ?fragment.
-  
-} where {
-  
-  $this js:name ?fragment.
-  
-}''';
-    rdfs:isDefinedBy js:.
-
-shp:Literal
-    a sh:NodeShape;
-    sh:rule rule:Literal;
-    sh:target target:Literal;
-    skos:prefLabel 'Literal shape'@en;
-    rdfs:isDefinedBy js:.    
-
-target:Literal
-    a sh:SPARQLTarget;
-    rdfs:comment ''@en;
-    sh:prefixes js:;
-    sh:select '''
-select $this {
-
-  # Select all literals in the javascript logic...
-  $this a/rdfs:subClassOf* js:Literal.
-  
-  # ...that do not yet have a javascript fragment.
-  filter not exists { $this js:fragment []. }
-  
-}''';
-    rdfs:isDefinedBy js:.
-
-rule:Literal
-    a sh:SPARQLRule;
-    rdfs:comment ''@en;
-    skos:prefLabel ''@en;
-    sh:prefixes js:;
-    sh:construct '''
-construct {
-
-  # Assert the new javascript fragment for this javascript node
-  $this js:fragment ?fragment.
-  
-} where {
-  
-  $this js:value ?valueFragment.
-  bind(if(datatype(?valueFragment)=xsd:string, concat('"',?valueFragment, '"'), ?valueFragment) as ?fragment)
-  
-}''';
-    rdfs:isDefinedBy js:.
 
