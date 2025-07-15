@@ -2755,7 +2755,7 @@ construct {
     js:right ?right.
   
   ?left
-    rdf:type/rdfs:subClassOf* js:Expression.
+    rdf:type/rdfs:subClassOf* js:Expression;
     js:fragment ?leftFragment.
 
   ?right
