@@ -526,6 +526,91 @@ js:RegExpLiteral
   skos:definition "A terminal node representing a regex pattern."@en ;
   rdfs:isDefinedBy js: .
 
+js:UnaryOperator a owl:Class ;
+  owl:oneOf (
+    "-"
+    "+"
+    "!"
+    "~"
+    "typeof"
+    "void"
+    "delete"
+  ) ;
+  skos:prefLabel "Unary Operator"@en ;
+  skos:definition "A unary operator token used in a UnaryExpression."@en ;
+  rdfs:isDefinedBy js: .
+
+js:UpdateOperator a owl:Class ;
+  owl:oneOf (
+    "++"
+    "--"
+  ) ;
+  skos:prefLabel "Update Operator"@en ;
+  skos:definition "A update operator token used in a UpdateExpression."@en ;
+  rdfs:isDefinedBy js: .
+
+js:BinaryOperator a owl:Class ;
+  owl:oneOf (
+    "=="
+    "!="
+    "==="
+    "!=="
+    "<"
+    "<="
+    ">"
+    ">="
+    "<<"
+    ">>"
+    ">>>"
+    "+"
+    "-"
+    "*"
+    "/"
+    "%"
+    "|"
+    "^"
+    "&"
+    "in"
+    "instanceof"
+    "**"
+  ) ;
+  skos:prefLabel "Binary Operator"@en ;
+  skos:definition "A binary operator token used in a BinaryExpression."@en ;
+  rdfs:isDefinedBy js: .
+
+js:AssignmentOperator a owl:Class ;
+  owl:oneOf (
+    "="
+    "+="
+    "-="
+    "*="
+    "/="
+    "%="
+    "<<="
+    ">>="
+    ">>>="
+    "|="
+    "^="
+    "&="
+    "**="
+    "||="
+    "&&="
+    "??="
+  ) ;
+  skos:prefLabel "Assignment Operator"@en ;
+  skos:definition "An assignment operator token used in a AssignmentExpression."@en ;
+  rdfs:isDefinedBy js: .
+
+js:LogicalOperator a owl:Class ;
+  owl:oneOf (
+    "&&"
+    "||"
+    "??"
+  ) ;
+  skos:prefLabel "Logical Operator"@en ;
+  skos:definition "A logical operator token used in a LogicalExpression."@en ;
+  rdfs:isDefinedBy js: .
+  
 ### Properties
 
 js:node 
@@ -2199,42 +2284,36 @@ construct {
 ''';
     rdfs:isDefinedBy js:. 
 
-shp:CallExpression
+shp:UnaryExpression
     a sh:NodeShape;
-    sh:rule rule:CallExpression;
-    sh:target target:CallExpression;
-    skos:prefLabel 'CallExpression shape'@en;
+    sh:rule rule:UnaryExpression;
+    sh:target target:UnaryExpression;
+    skos:prefLabel 'UnaryExpression shape'@en;
     rdfs:isDefinedBy js:.
 
-target:CallExpression
+target:UnaryExpression
     a sh:SPARQLTarget;
     rdfs:comment ''@en;
     sh:prefixes js:;
     sh:select '''
 select $this {
 
-  # Select all call expressions in the javascript AST...
-  $this a/rdfs:subClassOf* js:CallExpression.
+  # Select all properties in the javascript AST...
+  $this a/rdfs:subClassOf* js:UnaryExpression.
   
   # ...that do not yet have a javascript fragment.
   filter not exists { $this js:fragment []. }
-  
-  # ...but whose callee already has a js:fragment
+
+  # ...but whose value already has a js:fragment
   filter not exists {
-    $this js:callee ?expression.
-    filter not exists { ?expression js:fragment []. }
+    $this js:argument ?argument.
+    ?argument rdf:type/rdfs:subClassOf js:Expression.
+    filter not exists { ?argument js:fragment []. }
   }
-  
-  # ...but whose argument array already has a js:fragment for each argument in the array
-  filter not exists {
-    $this js:arguments ?arrayOfArguments.
-    ?arrayOfArguments rdf:first+ ?argument.
-    filter not exists {?argument js:fragment []. }
-  }  
 }''';
     rdfs:isDefinedBy js:.
 
-rule:CallExpression
+rule:UnaryExpression
     a sh:SPARQLRule;
     rdfs:comment ''@en;
     skos:prefLabel ''@en;
@@ -2246,22 +2325,274 @@ construct {
   $this js:fragment ?fragment.
   
 } where {
+
+  $this 
+    js:operator ?operator;
+    js:prefix ?boolean;
+    js:argument ?argument.
   
-  $this js:callee ?callee.
-  ?callee js:fragment ?calleeFragment.
+  ?argument 
+    rdf:type/rdfs:subClassOf* js:Expression;
+    js:fragment ?argumentFragment.
+
+  bind(if(?boolean, concat(?operator, ' ', ?argumentFragment), concat(?argumentFragment, ' ', ?operator)) as ?fragment)
+}
+''';
+    rdfs:isDefinedBy js:. 
+
+shp:UpdateExpression
+    a sh:NodeShape;
+    sh:rule rule:UpdateExpression;
+    sh:target target:UpdateExpression;
+    skos:prefLabel 'UpdateExpression shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:UpdateExpression
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all properties in the javascript AST...
+  $this a/rdfs:subClassOf* js:UpdateExpression.
   
-  OPTIONAL{
-   {select (group_concat(?argumentFragment; separator=",") as ?argumentsFragment)
-     where {
-     $this js:arguments ?arrayOfArguments.
-     ?arrayOfArguments rdf:first+ ?argument.
-     ?argument js:fragment ?argumentFragment.
-   }}
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose value already has a js:fragment
+  filter not exists {
+    $this js:argument ?argument.
+    ?argument rdf:type/rdfs:subClassOf js:Expression.
+    filter not exists { ?argument js:fragment []. }
   }
-  
-  bind(concat(?calleeFragment, "(", coalesce(?argumentsFragment,""), ")") as ?fragment)
-  
 }''';
+    rdfs:isDefinedBy js:.
+
+rule:UpdateExpression
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  $this 
+    js:operator ?operator;
+    js:prefix ?boolean;
+    js:argument ?argument.
+  
+  ?argument 
+    rdf:type/rdfs:subClassOf* js:Expression;
+    js:fragment ?argumentFragment.
+
+  bind(if(?boolean, concat(?operator, ' ', ?argumentFragment), concat(?argumentFragment, ' ', ?operator)) as ?fragment)
+}
+''';
+    rdfs:isDefinedBy js:.
+
+shp:BinaryExpression
+    a sh:NodeShape;
+    sh:rule rule:BinaryExpression;
+    sh:target target:BinaryExpression;
+    skos:prefLabel 'BinaryExpression shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:BinaryExpression
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all properties in the javascript AST...
+  $this a/rdfs:subClassOf* js:BinaryExpression.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose left operand already has a js:fragment
+  filter not exists {
+    $this js:left ?left.
+    ?left rdf:type/rdfs:subClassOf js:Expression.
+    filter not exists { ?left js:fragment []. }
+  }
+
+  # ...but whose right operand already has a js:fragment
+  filter not exists {
+    $this js:right ?right.
+    ?right rdf:type/rdfs:subClassOf js:Expression.
+    filter not exists { ?right js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:BinaryExpression
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  $this 
+    js:operator ?operator;
+    js:left ?left;
+    js:right ?right.
+  
+  ?left
+    rdf:type/rdfs:subClassOf* js:Expression;
+    js:fragment ?leftFragment.
+
+  ?right
+    rdf:type/rdfs:subClassOf* js:Expression;
+    js:fragment ?rightFragment.
+
+  bind(concat(?leftFragment, ' ', ?operator, ' ', ?rightFragment) as ?fragment)
+}
+''';
+    rdfs:isDefinedBy js:.
+
+shp:AssignmentExpression
+    a sh:NodeShape;
+    sh:rule rule:AssignmentExpression;
+    sh:target target:AssignmentExpression;
+    skos:prefLabel 'AssignmentExpression shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:AssignmentExpression
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all properties in the javascript AST...
+  $this a/rdfs:subClassOf* js:AssignmentExpression.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose left operand already has a js:fragment
+  filter not exists {
+    $this js:left ?left.
+    filter not exists { ?left js:fragment []. }
+  }
+
+  # ...but whose right operand already has a js:fragment
+  filter not exists {
+    $this js:right ?right.
+    ?right rdf:type/rdfs:subClassOf js:Expression.
+    filter not exists { ?right js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:AssignmentExpression
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  $this 
+    js:operator ?operator;
+    js:left ?left;
+    js:right ?right.
+  
+  ?left
+    js:fragment ?leftFragment.
+
+  ?right
+    rdf:type/rdfs:subClassOf* js:Expression;
+    js:fragment ?rightFragment.
+
+  bind(concat(?leftFragment, ' ', ?operator, ' ', ?rightFragment) as ?fragment)
+}
+''';
+    rdfs:isDefinedBy js:.
+
+shp:LogicalExpression
+    a sh:NodeShape;
+    sh:rule rule:LogicalExpression;
+    sh:target target:LogicalExpression;
+    skos:prefLabel 'LogicalExpression shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:LogicalExpression
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all properties in the javascript AST...
+  $this a/rdfs:subClassOf* js:LogicalExpression.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose left operand already has a js:fragment
+  filter not exists {
+    $this js:left ?left.
+    ?left rdf:type/rdfs:subClassOf js:Expression.    
+    filter not exists { ?left js:fragment []. }
+  }
+
+  # ...but whose right operand already has a js:fragment
+  filter not exists {
+    $this js:right ?right.
+    ?right rdf:type/rdfs:subClassOf js:Expression.
+    filter not exists { ?right js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:LogicalExpression
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  $this 
+    js:operator ?operator;
+    js:left ?left;
+    js:right ?right.
+  
+  ?left
+    rdf:type/rdfs:subClassOf js:Expression.
+    js:fragment ?leftFragment.
+
+  ?right
+    rdf:type/rdfs:subClassOf* js:Expression;
+    js:fragment ?rightFragment.
+
+  bind(concat(?leftFragment, ' ', ?operator, ' ', ?rightFragment) as ?fragment)
+}
+''';
     rdfs:isDefinedBy js:.
 
 shp:MemberExpression
@@ -2323,6 +2654,71 @@ construct {
   bind(if(?computed, concat(?objectFragment, "[", ?propertyFragment, "]"), 
                      concat(?objectFragment, ".", ?propertyFragment)) 
   as ?fragment)
+  
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:CallExpression
+    a sh:NodeShape;
+    sh:rule rule:CallExpression;
+    sh:target target:CallExpression;
+    skos:prefLabel 'CallExpression shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:CallExpression
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all call expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:CallExpression.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+  
+  # ...but whose callee already has a js:fragment
+  filter not exists {
+    $this js:callee ?expression.
+    filter not exists { ?expression js:fragment []. }
+  }
+  
+  # ...but whose argument array already has a js:fragment for each argument in the array
+  filter not exists {
+    $this js:arguments ?arrayOfArguments.
+    ?arrayOfArguments rdf:first+ ?argument.
+    filter not exists {?argument js:fragment []. }
+  }  
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:CallExpression
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  
+  $this js:callee ?callee.
+  ?callee js:fragment ?calleeFragment.
+  
+  OPTIONAL{
+   {select (group_concat(?argumentFragment; separator=",") as ?argumentsFragment)
+     where {
+     $this js:arguments ?arrayOfArguments.
+     ?arrayOfArguments rdf:first+ ?argument.
+     ?argument js:fragment ?argumentFragment.
+   }}
+  }
+  
+  bind(concat(?calleeFragment, "(", coalesce(?argumentsFragment,""), ")") as ?fragment)
   
 }''';
     rdfs:isDefinedBy js:.
@@ -2406,47 +2802,6 @@ construct {
   
   $this js:value ?valueFragment.
   bind(if(datatype(?valueFragment)=xsd:string, concat('"',?valueFragment, '"'), ?valueFragment) as ?fragment)
-  
-}''';
-    rdfs:isDefinedBy js:.
-
-shp:Operator
-    a sh:NodeShape;
-    sh:rule rule:Operator;
-    sh:target target:Operator;
-    skos:prefLabel 'Operator shape'@en;
-    rdfs:isDefinedBy js:.    
-
-target:Operator
-    a sh:SPARQLTarget;
-    rdfs:comment ''@en;
-    sh:prefixes js:;
-    sh:select '''
-select $this {
-
-  # Select all operators in the javascript logic...
-  $this a/rdfs:subClassOf* js:Operator.
-  
-  # ...that do not yet have a javascript fragment.
-  filter not exists { $this js:fragment []. }
-  
-}''';
-    rdfs:isDefinedBy js:.
-
-rule:Operator
-    a sh:SPARQLRule;
-    rdfs:comment ''@en;
-    skos:prefLabel ''@en;
-    sh:prefixes js:;
-    sh:construct '''
-construct {
-
-  # Assert the new javascript fragment for this javascript node
-  $this js:fragment ?fragment.
-  
-} where {
-  
-  $this js:operator ?fragment.
   
 }''';
     rdfs:isDefinedBy js:.
