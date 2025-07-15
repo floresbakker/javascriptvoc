@@ -522,6 +522,10 @@ js:Literal
 js:RegExpLiteral
   a owl:Class ;
   rdfs:subClassOf js:Literal ;
+  owl:intersectionOf (js:Literal
+                      [rdf:type owl:Restriction;
+                       owl:onProperty js:regex;
+                       owl:cardinality 1]);                      
   skos:prefLabel "RegExpLiteral"@en ;
   skos:definition "A terminal node representing a regex pattern."@en ;
   rdfs:isDefinedBy js: .
@@ -868,8 +872,14 @@ construct {
 } where {
   
   $this js:value ?valueFragment.
-  bind(if(datatype(?valueFragment)=xsd:string, concat('"',?valueFragment, '"'), ?valueFragment) as ?fragment)
   
+  optional {
+  $this    js:regex   ?pattern, ?flags.
+  ?pattern js:pattern ?patternString.
+  ?flags   js:flags   ?flagsString.
+  }
+  bind(if(bound(?pattern), concat('"/', ?patternString, '/', ?flagsString,'"'), 
+       if(datatype(?valueFragment)=xsd:string, concat('"',?valueFragment, '"'), ?valueFragment)) as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
@@ -1050,6 +1060,47 @@ construct {
 }''';
     rdfs:isDefinedBy js:.
 
+shp:Directive
+    a sh:NodeShape;
+    sh:rule rule:Directive;
+    sh:target target:Directive;
+    skos:prefLabel 'Directive shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:Directive
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all expression statements in the javascript AST...
+  $this a/rdfs:subClassOf* js:Directive.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+ 
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:Directive
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  
+  $this js:value ?valueFragment.
+  bind(if(datatype(?valueFragment)=xsd:string, concat('"',?valueFragment, '"'), ?valueFragment) as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
 shp:BlockStatement
     a sh:NodeShape;
     sh:rule rule:BlockStatement;
@@ -1189,6 +1240,44 @@ construct {
 
   # Assert the new javascript fragment for this javascript node
   $this js:fragment ";\n".
+  
+} where {}
+''';
+    rdfs:isDefinedBy js:.
+
+shp:DebuggerStatement
+    a sh:NodeShape;
+    sh:rule rule:DebuggerStatement;
+    sh:target target:DebuggerStatement;
+    skos:prefLabel 'DebuggerStatement shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:DebuggerStatement
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all empty statements in the javascript AST...
+  $this a/rdfs:subClassOf* js:DebuggerStatement.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:DebuggerStatement
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment "debugger;\n".
   
 } where {}
 ''';
