@@ -1901,7 +1901,7 @@ target:ForInStatement
     sh:select '''
 select $this {
 
-  # Select all if statements in the javascript AST...
+  # Select all for in statements in the javascript AST...
   $this a/rdfs:subClassOf* js:ForInStatement.
   
   # ...that do not yet have a javascript fragment.
@@ -1965,7 +1965,7 @@ target:VariableDeclaration
     sh:select '''
 select $this {
 
-  # Select all if statements in the javascript AST...
+  # Select all variable declarations in the javascript AST...
   $this a/rdfs:subClassOf* js:VariableDeclaration.
   
   # ...that do not yet have a javascript fragment.
@@ -2023,7 +2023,7 @@ target:VariableDeclarator
     sh:select '''
 select $this {
 
-  # Select all if statements in the javascript AST...
+  # Select all variable declarators in the javascript AST...
   $this a/rdfs:subClassOf* js:VariableDeclarator.
   
   # ...that do not yet have a javascript fragment.
@@ -2085,7 +2085,7 @@ target:ThisExpression
     sh:select '''
 select $this {
 
-  # Select all if statements in the javascript AST...
+  # Select all this expressions in the javascript AST...
   $this a/rdfs:subClassOf* js:ThisExpression.
   
   # ...that do not yet have a javascript fragment.
@@ -2298,7 +2298,7 @@ target:UnaryExpression
     sh:select '''
 select $this {
 
-  # Select all properties in the javascript AST...
+  # Select all unary expressions in the javascript AST...
   $this a/rdfs:subClassOf* js:UnaryExpression.
   
   # ...that do not yet have a javascript fragment.
@@ -2354,7 +2354,7 @@ target:UpdateExpression
     sh:select '''
 select $this {
 
-  # Select all properties in the javascript AST...
+  # Select all update expressions in the javascript AST...
   $this a/rdfs:subClassOf* js:UpdateExpression.
   
   # ...that do not yet have a javascript fragment.
@@ -2410,7 +2410,7 @@ target:BinaryExpression
     sh:select '''
 select $this {
 
-  # Select all properties in the javascript AST...
+  # Select all binary expressions in the javascript AST...
   $this a/rdfs:subClassOf* js:BinaryExpression.
   
   # ...that do not yet have a javascript fragment.
@@ -2477,7 +2477,7 @@ target:AssignmentExpression
     sh:select '''
 select $this {
 
-  # Select all properties in the javascript AST...
+  # Select all assignment expressions in the javascript AST...
   $this a/rdfs:subClassOf* js:AssignmentExpression.
   
   # ...that do not yet have a javascript fragment.
@@ -2542,7 +2542,7 @@ target:LogicalExpression
     sh:select '''
 select $this {
 
-  # Select all properties in the javascript AST...
+  # Select all logical expressions in the javascript AST...
   $this a/rdfs:subClassOf* js:LogicalExpression.
   
   # ...that do not yet have a javascript fragment.
@@ -2591,6 +2591,79 @@ construct {
     js:fragment ?rightFragment.
 
   bind(concat(?leftFragment, ' ', ?operator, ' ', ?rightFragment) as ?fragment)
+}
+''';
+    rdfs:isDefinedBy js:.
+
+shp:ConditionalExpression
+    a sh:NodeShape;
+    sh:rule rule:ConditionalExpression;
+    sh:target target:ConditionalExpression;
+    skos:prefLabel 'ConditionalExpression shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ConditionalExpression
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all conditional expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:ConditionalExpression.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose test expression already has a js:fragment
+  filter not exists {
+    $this js:test ?test.
+    ?test rdf:type/rdfs:subClassOf js:Expression.    
+    filter not exists { ?test js:fragment []. }
+  }
+
+  # ...and whose alternate expression already has a js:fragment
+  filter not exists {
+    $this js:alternate ?alternate.
+    ?alternate rdf:type/rdfs:subClassOf js:Expression.
+    filter not exists { ?alternate js:fragment []. }
+  }
+
+  # ...and whose consequent expression already has a js:fragment
+  filter not exists {
+    $this js:consequent ?consequent.
+    ?consequent rdf:type/rdfs:subClassOf js:Expression.
+    filter not exists { ?consequent js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ConditionalExpression
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  $this js:test ?test.
+  ?test rdf:type/rdfs:subClassOf js:Expression;
+        js:fragment ?testFragment.
+
+  $this js:consequent ?consequent.
+  ?consequent rdf:type/rdfs:subClassOf js:Expression;
+              js:fragment ?consequentFragment.
+
+  $this js:alternate ?alternate.
+  ?alternate rdf:type/rdfs:subClassOf js:Expression;
+             js:fragment ?alternateFragment.
+
+  bind(concat(?testFragment, ' ? ', ?consequentFragment, ' : ', ?alternateFragment) as ?fragment)
 }
 ''';
     rdfs:isDefinedBy js:.
