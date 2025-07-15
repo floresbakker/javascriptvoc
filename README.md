@@ -28,14 +28,14 @@ Unstable & unfinished. Work in progress. Please note that the provided tooling i
 Take for example the following Javascript code:
 
 ```
-console.log("Hello world!")
+console.log("Hello world!");
 ```
 
 This can be modeled in RDF using the Javascript Vocabulary:
 
 ```
 prefix ex:  <https://example.org/>
-prefix js:  <https://www.javascript.fin.rijksweb/model/def/>
+prefix js:  <https://www.javascript.fin.rijksweb.nl/model/def/>
 prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
 # Root node of the AST (Program node)
