@@ -2386,8 +2386,8 @@ construct {
    where {
     $this js:properties ?array.
     ?array rdf:first+ ?property.
-    ?property rdf:type/rdfs:subClassOf* js:Property.
-    ?expression js:fragment ?propertyFragment.
+    ?property rdf:type/rdfs:subClassOf* js:Property;
+              js:fragment ?propertyFragment.
     }
    }
 }
