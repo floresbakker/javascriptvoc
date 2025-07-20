@@ -2231,8 +2231,9 @@ construct {
 } where {
 
   $this js:id ?pattern.
-  ?pattern rdf:type js:Pattern;
+  ?pattern rdf:type ?patternClass;
            js:fragment ?identifierFragment.
+  filter(?patternClass in (js:Pattern, js:Identifier))
 
   $this js:init ?expression.
   OPTIONAL
@@ -2381,7 +2382,7 @@ construct {
   
 } where {
 
-  {select (group_concat(?propertyFragment; separator=",") as ?arrayFragment)
+  {select (group_concat(?propertyFragment; separator=",") as ?fragment)
    where {
     $this js:properties ?array.
     ?array rdf:first+ ?property.
@@ -2389,7 +2390,6 @@ construct {
     ?expression js:fragment ?propertyFragment.
     }
    }
-  bind(concat(?propertyFragment, ",") as ?fragment)
 }
 ''';
     rdfs:isDefinedBy js:. 
