@@ -41,6 +41,7 @@ prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 # Root node of the AST (Program node)
 ex:program1
   a js:Program ;
+  js:sourceType "script";  
   js:body (ex:expressionStatement1) ;
   js:fragment '''console.log("Hello world!");'''.  
 

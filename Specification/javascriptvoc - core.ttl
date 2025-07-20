@@ -219,6 +219,22 @@ js:Pattern
   skos:prefLabel 'Pattern'@en;
   rdfs:isDefinedBy js:.
 
+js:SpreadElement
+  a owl:Class;
+  rdfs:subClassOf js:Node;
+  dct:conformsTo section:SpreadElement;
+  skos:definition 'Represents a spread element in the Javascript syntax.'@en;
+  skos:prefLabel 'Spread element'@en;
+  rdfs:isDefinedBy js:.
+
+js:Super
+  a owl:Class;
+  rdfs:subClassOf js:Node;
+  dct:conformsTo section:Super;
+  skos:definition 'Represents a super class in the Javascript syntax.'@en;
+  skos:prefLabel 'Super'@en;
+  rdfs:isDefinedBy js:.
+
 js:ExpressionStatement
   a owl:Class ;
   rdfs:subClassOf js:Statement ;
@@ -344,6 +360,13 @@ js:ForInStatement
   skos:prefLabel "For In Statement"@en ;
   skos:definition "A for in statement."@en ;
   rdfs:isDefinedBy js: .
+
+js:ForOfStatement
+  a owl:Class ;
+  rdfs:subClassOf js:Statement ;
+  skos:prefLabel "For of Statement"@en ;
+  skos:definition "A for of statement."@en ;
+  rdfs:isDefinedBy js: .  
 
 js:Declaration
   a owl:Class ;
@@ -1006,8 +1029,14 @@ construct {
   $this js:body ?functionBody.
   ?functionBody rdf:type js:FunctionBody.
   ?functionBody js:fragment ?bodyFragment.
+
+  $this js:generator ?generator.
+  $this js:async ?async.
+
+  bind(if(?async = true, "async ", "") AS ?asyncFragment)
+  bind(if(?generator = true, "*", "") AS ?generatorFragment)  
  
-  bind(concat("function ",?identifierFragment,"(", ?paramsFragment, ")\n", "\t",?bodyFragment, "\n") as ?fragment)
+  bind(concat(?asyncFragment, "function",?generatorFragment, " ", ?identifierFragment,"(", ?paramsFragment, ")\\n", "\\t",?bodyFragment, "\\n") as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
@@ -1150,7 +1179,7 @@ construct {
   ?element js:fragment ?elementFragment.
     }
   }
-  bind(concat("{\n", ?statementsFragment, "\n}") as ?fragment)
+  bind(concat("{\\n", ?statementsFragment, "\\n}") as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
@@ -1203,7 +1232,7 @@ construct {
   ?element js:fragment ?elementFragment.
     }
   }
-  bind(concat("{\n", ?statementsFragment, "\n}") as ?fragment)
+  bind(concat("{\\n", ?statementsFragment, "\\n}") as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
@@ -1239,7 +1268,7 @@ rule:EmptyStatement
 construct {
 
   # Assert the new javascript fragment for this javascript node
-  $this js:fragment ";\n".
+  $this js:fragment ";\\n".
   
 } where {}
 ''';
@@ -1277,7 +1306,7 @@ rule:DebuggerStatement
 construct {
 
   # Assert the new javascript fragment for this javascript node
-  $this js:fragment "debugger;\n".
+  $this js:fragment "debugger;\\n".
   
 } where {}
 ''';
@@ -1613,7 +1642,7 @@ construct {
   optional{
   ?alternate js:fragment ?alternateFragment.}
  
-  bind(concat("if (",?testFragment, ")\n", "\t",?consequentFragment, "\n", if(bound(?alternateFragment), concat('else \n\t', ?alternateFragment),"\n"), "") as ?fragment)
+  bind(concat("if (",?testFragment, ")\\n", "\\t",?consequentFragment, "\\n", if(bound(?alternateFragment), concat('else \\n\\t', ?alternateFragment),"\\n"), "") as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
@@ -1678,7 +1707,7 @@ construct {
     }
    }
 
-  bind(concat("(",?discriminantFragment, ") {\n", "\t", ?casesFragment, "}\n") as ?fragment)
+  bind(concat("(",?discriminantFragment, ") {\\n", "\\t", ?casesFragment, "}\\n") as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
@@ -1742,7 +1771,7 @@ construct {
     }
    }
 
-  bind(concat("case ",?testFragment, ": \n", "\t", ?consequentsFragment, "\n") as ?fragment)
+  bind(concat("case ",?testFragment, ": \\n", "\\t", ?consequentsFragment, "\\n") as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
@@ -1870,7 +1899,7 @@ construct {
   ?finalizerBlockStatement
      rdf:type js:BlockStatement;
      js:fragment ?finalizerFragment.}
-  bind(concat('try ', ?blockFragment, '\n', if(bound(?catchFragment), concat('\t', 'catch ',?catchFragment, '\n'), ''), if(bound(?finalizerFragment), concat('\t finally ', ?finalizerFragment, '\n'), '')) as ?fragment)
+  bind(concat('try ', ?blockFragment, '\\n', if(bound(?catchFragment), concat('\\t', 'catch ',?catchFragment, '\\n'), ''), if(bound(?finalizerFragment), concat('\\t finally ', ?finalizerFragment, '\\n'), '')) as ?fragment)
 }
 ''';
     rdfs:isDefinedBy js:.    
@@ -1927,7 +1956,7 @@ construct {
   $this js:body ?body.
   ?body js:fragment ?bodyFragment.
  
-  bind(concat("while (",?testFragment, ")\n", "\t",?bodyFragment, "\n") as ?fragment)
+  bind(concat("while (",?testFragment, ")\\n", "\\t",?bodyFragment, "\\n") as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
@@ -1983,7 +2012,7 @@ construct {
   $this js:body ?body.
   ?body js:fragment ?bodyFragment.
  
-  bind(concat("do ",?bodyFragment, "\n", "\t while (",?testFragment, ")\n") as ?fragment)
+  bind(concat("do ",?bodyFragment, "\\n", "\\t while (",?testFragment, ")\\n") as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
@@ -2055,7 +2084,7 @@ construct {
   $this js:body ?body.
   ?body js:fragment ?bodyFragment.
  
-  bind(concat("for (",?initFragment, ";",?testFragment,";", ?updateFragment, ")\n", "\t",?bodyFragment, "\n") as ?fragment)
+  bind(concat("for (",?initFragment, ";",?testFragment,";", ?updateFragment, ")\\n", "\\t",?bodyFragment, "\\n") as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
@@ -2119,7 +2148,74 @@ construct {
   $this js:body ?body.
   ?body js:fragment ?bodyFragment.
  
-  bind(concat("for (",?leftFragment," in ", ?rightFragment, ")\n", "\t",?bodyFragment, "\n") as ?fragment)
+  bind(concat("for (",?leftFragment," in ", ?rightFragment, ")\\n", "\\t",?bodyFragment, "\\n") as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:ForOfStatement
+    a sh:NodeShape;
+    sh:rule rule:ForOfStatement;
+    sh:target target:ForOfStatement;
+    skos:prefLabel 'ForOfStatement shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ForOfStatement
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all for in statements in the javascript AST...
+  $this a/rdfs:subClassOf* js:ForOfStatement.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose left expression already has a js:fragment
+  filter not exists {
+    $this js:left ?left.
+    filter not exists { ?left js:fragment []. }
+  }
+  
+  # ...but whose right expression already has a js:fragment
+  filter not exists {
+    $this js:right ?right.
+    filter not exists { ?right js:fragment []. }
+  }
+  
+  # ...but whose body statement already has a js:fragment
+  filter not exists {
+    $this js:body ?body.
+    filter not exists { ?body js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ForOfStatement
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  $this js:left ?left.  
+  ?left js:fragment ?leftFragment.     
+  $this js:right ?right.  
+  ?right js:fragment ?rightFragment.  
+  $this js:body ?body.
+  ?body js:fragment ?bodyFragment.
+  $this js:await ?await.
+  
+  bind(if(?await = true, 'await ', '') as ?awaitFragment)
+ 
+  bind(concat("for ",?awaitFragment, "(",?leftFragment," in ", ?rightFragment, ")\\n", "\\t",?bodyFragment, "\\n") as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
@@ -2177,7 +2273,7 @@ construct {
  
   $this js:kind ?kind.              
  
-  bind(concat(?kind," ",?declarationsFragment, "\n") as ?fragment)
+  bind(concat(?kind," ",?declarationsFragment, "\\n") as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
@@ -2244,6 +2340,94 @@ construct {
 }''';
     rdfs:isDefinedBy js:.
 
+shp:SpreadElement
+    a sh:NodeShape;
+    sh:rule rule:SpreadElement;
+    sh:target target:SpreadElement;
+    skos:prefLabel 'SpreadElement shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:SpreadElement
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all this expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:SpreadElement.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose argument already has a js:fragment
+  filter not exists {
+    $this js:argument ?argument.
+    ?argument rdf:type js:Expression.
+    filter not exists { ?argument js:fragment []. }
+  }  
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:SpreadElement
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  $this js:argument ?argument.
+  ?argument js:fragment ?argumentFragment.
+    
+  bind(concat('... ', ?argumentFragment) as ?fragment)
+
+}
+''';
+    rdfs:isDefinedBy js:.
+
+shp:Super
+    a sh:NodeShape;
+    sh:rule rule:Super;
+    sh:target target:Super;
+    skos:prefLabel 'Super shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:Super
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all this expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:Super.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:Super
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment "super".
+  
+} where {}
+''';
+    rdfs:isDefinedBy js:.
+
 shp:ThisExpression
     a sh:NodeShape;
     sh:rule rule:ThisExpression;
@@ -2304,9 +2488,9 @@ select $this {
   # ...but whose elements already have a js:fragment (or are rdf:nil)
   filter not exists {
     $this js:elements ?array.
-    ?array rdf:rest*/rdf:first ?expression.
-    ?expression rdf:type/rdfs:subClassOf* js:Expression.
-    filter not exists { ?expression js:fragment []. }
+    ?array rdf:rest*/rdf:first ?element.
+    ?element rdf:type/rdfs:subClassOf* js:Node.
+    filter not exists { ?element js:fragment []. }
   }
 }''';
     rdfs:isDefinedBy js:.
@@ -2327,11 +2511,11 @@ construct {
   {select (group_concat(?elementFragment; separator=",") as ?arrayFragment)
    where {
     $this js:elements ?array.
-    ?array rdf:rest*/rdf:first ?expression.
+    ?array rdf:rest*/rdf:first ?element.
     optional{
-    ?expression rdf:type/rdfs:subClassOf* js:Expression.
-    ?expression js:fragment ?expressionFragment.}
-    bind(coalesce(?expressionFragment, "") as ?elementFragment)
+    ?element rdf:type/rdfs:subClassOf* js:Node.
+    ?element js:fragment ?nodeFragment.}
+    bind(coalesce(?nodeFragment, "") as ?elementFragment)
     }
   }
   bind(concat("[",?arrayFragment, "]") as ?fragment)
@@ -2449,9 +2633,16 @@ construct {
   ?value rdf:type/rdfs:subClassOf* js:Expression;
          js:fragment ?valueFragment.
 
-  $this js:kind ?kind.
+  $this js:shorthand ?shorthand.
+  $this js:method    ?method.
+  $this js:computed  ?computed.
+  $this js:kind      ?kind.
   
-  bind(if(?kind = 'init', concat(?keyFragment, ':', ?valueFragment, ','), concat(?kind, ' ', ?keyFragment, ' \n', ?valueFragment)) as ?fragment)
+  bind(if(?shorthand, ?keyFragment,
+       if(?method, concat(?keyFragment, ?valueFragment), 
+       if(?computed, concat('[', ?keyFragment, ']:', ?valueFragment), 
+       if(?kind = 'init', concat(?keyFragment, ':', ?valueFragment, ','), 
+       concat(?kind, ' ', ?keyFragment, ' \\n', ?valueFragment))))) as ?fragment)
 }
 ''';
     rdfs:isDefinedBy js:. 
@@ -2999,7 +3190,7 @@ select $this {
   filter not exists {
     $this js:arguments ?array.
     ?array rdf:rest*/rdf:first ?argument.
-    ?argument rdf:type/rdfs:subClassOf* js:Expression.
+    ?argument rdf:type/rdfs:subClassOf* js:Node.
     filter not exists { ?argument js:fragment []. }
   }
 }''';
