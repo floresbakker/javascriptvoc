@@ -906,7 +906,7 @@ select $this {
   # ...but whose body array elements already have a js:fragment
   filter not exists {
     $this js:body ?array.
-    ?array rdf:first+ ?element.
+    ?array rdf:rest*/rdf:first ?element.
     filter not exists { ?element js:fragment []. }
   }
 }''';
@@ -928,7 +928,7 @@ construct {
   {select(group_concat(?elementFragment; separator="\\n") as ?fragment)
   where {
   $this js:body ?array.
-  ?array rdf:first+ ?element.
+  ?array rdf:rest*/rdf:first ?element.
   ?element js:fragment ?elementFragment.
     }  
   }
@@ -966,7 +966,7 @@ select $this {
   # ...but whose params already have a js:fragment
   filter not exists {
     $this js:params ?array.
-    ?array rdf:first ?pattern.
+    ?array rdf:rest*/rdf:first ?pattern.
     ?pattern rdf:type js:Pattern.
     filter not exists { ?pattern js:fragment []. }
   }
@@ -999,7 +999,7 @@ construct {
   {select (group_concat(?patternFragment; separator=",") as ?paramsFragment)
      where {
      $this js:params ?array.
-     ?array rdf:first+ ?pattern.
+     ?array rdf:rest*/rdf:first ?pattern.
      ?pattern js:fragment ?patternFragment.
   }}
   
@@ -1124,7 +1124,7 @@ select $this {
   # ...but whose body array elements already have a js:fragment
   filter not exists {
     $this js:body ?array.
-    ?array rdf:first+ ?element.
+    ?array rdf:rest*/rdf:first ?element.
     filter not exists { ?element js:fragment []. }
   }
 }''';
@@ -1146,7 +1146,7 @@ construct {
   {select(group_concat(?elementFragment; separator="\\n") as ?statementsFragment)
   where {
   $this js:body ?array.
-  ?array rdf:first+ ?element.
+  ?array rdf:rest*/rdf:first ?element.
   ?element js:fragment ?elementFragment.
     }
   }
@@ -1177,7 +1177,7 @@ select $this {
   # ...but whose body array elements already have a js:fragment
   filter not exists {
     $this js:body ?array.
-    ?array rdf:first+ ?element.
+    ?array rdf:rest*/rdf:first ?element.
     filter not exists { ?element js:fragment []. }
   }
 }''';
@@ -1199,7 +1199,7 @@ construct {
   {select(group_concat(?elementFragment; separator="\\n") as ?statementsFragment)
   where {
   $this js:body ?array.
-  ?array rdf:first+ ?element.
+  ?array rdf:rest*/rdf:first ?element.
   ?element js:fragment ?elementFragment.
     }
   }
@@ -1646,7 +1646,7 @@ select $this {
   # ...and whose swtich cases already have a js:fragment 
   filter not exists {
     $this js:cases ?array.
-    ?array rdf:first+ ?switchCase.
+    ?array rdf:rest*/rdf:first ?switchCase.
     ?switchCase rdf:type/rdfs:subClassOf* js:SwitchCase.
     filter not exists { ?switchCase js:fragment []. }
   }
@@ -1672,7 +1672,7 @@ construct {
   {select (group_concat(?caseFragment; separator="\\n") as ?casesFragment)
      where {
      $this js:cases ?array.
-     ?array rdf:first+ ?switchCase.
+     ?array rdf:rest*/rdf:first ?switchCase.
      ?switchCase rdf:type/rdfs:subClassOf* js:SwitchCase.
      ?switchCase js:fragment ?caseFragment.
     }
@@ -1711,7 +1711,7 @@ select $this {
   # ...but whose consequent expression already has a js:fragment
   filter not exists {
     $this js:consequent ?array.
-    ?array rdf:first+ ?consequent.
+    ?array rdf:rest*/rdf:first ?consequent.
     filter not exists { ?consequent js:fragment []. }
   }
 }''';
@@ -1736,7 +1736,7 @@ construct {
   {select (group_concat(?consequentFragment; separator=";\\n") as ?consequentsFragment)
      where {
      $this js:consequent ?array.
-     ?array rdf:first+ ?consequent.
+     ?array rdf:rest*/rdf:first ?consequent.
      ?consequent rdf:type/rdfs:subClassOf* js:Statement.
      ?consequent js:fragment ?consequentFragment.
     }
@@ -2146,7 +2146,7 @@ select $this {
   # ...but whose declarations already has a js:fragment
   filter not exists {
     $this js:declarations ?array.
-    ?array rdf:first ?variableDeclarator.
+    ?array rdf:rest*/rdf:first ?variableDeclarator.
     filter not exists { ?variableDeclarator js:fragment []. }
   }
 }''';
@@ -2169,7 +2169,7 @@ construct {
   {select (group_concat(?varDeclaratorFragment; separator=", ") as ?declarationsFragment)
      where {
      $this js:declarations ?array.
-     ?array rdf:first+ ?varDeclarator.
+     ?array rdf:rest*/rdf:first ?varDeclarator.
      ?varDeclarator rdf:type/rdfs:subClassOf* js:VariableDeclarator;
                     js:fragment ?varDeclaratorFragment.
     }
@@ -2304,7 +2304,7 @@ select $this {
   # ...but whose elements already have a js:fragment (or are rdf:nil)
   filter not exists {
     $this js:elements ?array.
-    ?array rdf:first+ ?expression.
+    ?array rdf:rest*/rdf:first ?expression.
     ?expression rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?expression js:fragment []. }
   }
@@ -2327,7 +2327,7 @@ construct {
   {select (group_concat(?elementFragment; separator=",") as ?arrayFragment)
    where {
     $this js:elements ?array.
-    ?array rdf:first+ ?expression.
+    ?array rdf:rest*/rdf:first ?expression.
     optional{
     ?expression rdf:type/rdfs:subClassOf* js:Expression.
     ?expression js:fragment ?expressionFragment.}
@@ -2362,7 +2362,7 @@ select $this {
   # ...but whose properties already have a js:fragment
   filter not exists {
     $this js:properties ?array.
-    ?array rdf:first+ ?property.
+    ?array rdf:rest*/rdf:first ?property.
     ?property rdf:type/rdfs:subClassOf* js:Property.
     filter not exists { ?property js:fragment []. }
   }
@@ -2385,7 +2385,7 @@ construct {
   {select (group_concat(?propertyFragment; separator=",") as ?fragment)
    where {
     $this js:properties ?array.
-    ?array rdf:first+ ?property.
+    ?array rdf:rest*/rdf:first ?property.
     ?property rdf:type/rdfs:subClassOf* js:Property;
               js:fragment ?propertyFragment.
     }
@@ -2932,7 +2932,7 @@ select $this {
   # ...but whose argument array already has a js:fragment for each argument in the array
   filter not exists {
     $this js:arguments ?arrayOfArguments.
-    ?arrayOfArguments rdf:first+ ?argument.
+    ?arrayOfArguments rdf:rest*/rdf:first ?argument.
     filter not exists {?argument js:fragment []. }
   }  
 }''';
@@ -2958,7 +2958,7 @@ construct {
    {select (group_concat(?argumentFragment; separator=",") as ?argumentsFragment)
      where {
      $this js:arguments ?arrayOfArguments.
-     ?arrayOfArguments rdf:first+ ?argument.
+     ?arrayOfArguments rdf:rest*/rdf:first ?argument.
      ?argument js:fragment ?argumentFragment.
    }}
   }
@@ -2998,7 +2998,7 @@ select $this {
   # ...and whose arguments expression already has a js:fragment
   filter not exists {
     $this js:arguments ?array.
-    ?array rdf:first+ ?argument.
+    ?array rdf:rest*/rdf:first ?argument.
     ?argument rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?argument js:fragment []. }
   }
@@ -3025,7 +3025,7 @@ construct {
   {select (group_concat(?argumentFragment; separator=",") as ?argumentsFragment)
      where {
      $this js:arguments ?arrayOfArguments.
-     ?arrayOfArguments rdf:first+ ?argument.
+     ?arrayOfArguments rdf:rest*/rdf:first ?argument.
      ?argument js:fragment ?argumentFragment.
     }
    }
@@ -3058,7 +3058,7 @@ select $this {
   # ...and whose expressions already have a js:fragment
   filter not exists {
     $this js:expressions ?array.
-    ?array rdf:first+ ?expression.
+    ?array rdf:rest*/rdf:first ?expression.
     ?expression rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?expression js:fragment []. }
   }
@@ -3081,7 +3081,7 @@ construct {
   {select (group_concat(?expressionFragment; separator=",") as ?expressionsFragment)
      where {
      $this js:expressions ?arrayOfExpressions.
-     ?arrayOfExpressions rdf:first+ ?expression.
+     ?arrayOfExpressions rdf:rest*/rdf:first ?expression.
      ?expression rdf:type/rdfs:subClassOf* js:Expression.     
      ?expression js:fragment ?expressionFragment.
     }
