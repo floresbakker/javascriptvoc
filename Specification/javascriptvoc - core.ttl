@@ -2240,7 +2240,7 @@ construct {
   {?expression rdf:type/rdfs:subClassOf* js:Expression;
               js:fragment ?initFragment.}
                
-  bind(concat(?identifierFragment," = ",?initFragment, ";") as ?fragment)
+  bind(concat(?identifierFragment,if(bound(?initFragment), concat(" = ",?initFragment), ""), ";") as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
