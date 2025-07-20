@@ -925,7 +925,7 @@ construct {
   
 } where {
   
-  {select(group_concat(?elementFragment; separator="\n") as ?fragment)
+  {select(group_concat(?elementFragment; separator="\\n") as ?fragment)
   where {
   $this js:body ?array.
   ?array rdf:first+ ?element.
@@ -1143,7 +1143,7 @@ construct {
   
 } where {
    
-  {select(group_concat(?elementFragment; separator="\n") as ?statementsFragment)
+  {select(group_concat(?elementFragment; separator="\\n") as ?statementsFragment)
   where {
   $this js:body ?array.
   ?array rdf:first+ ?element.
@@ -1196,7 +1196,7 @@ construct {
   
 } where {
    
-  {select(group_concat(?elementFragment; separator="\n") as ?statementsFragment)
+  {select(group_concat(?elementFragment; separator="\\n") as ?statementsFragment)
   where {
   $this js:body ?array.
   ?array rdf:first+ ?element.
@@ -1669,7 +1669,7 @@ construct {
   $this js:discriminant ?discriminant.  
   ?discriminant js:fragment ?discriminantFragment.       
  
-  {select (group_concat(?caseFragment; separator="\n") as ?casesFragment)
+  {select (group_concat(?caseFragment; separator="\\n") as ?casesFragment)
      where {
      $this js:cases ?array.
      ?array rdf:first+ ?switchCase.
@@ -1733,7 +1733,7 @@ construct {
   $this js:test ?test.  
   ?test js:fragment ?testFragment.       
  
-  {select (group_concat(?consequentFragment; separator=";\n") as ?consequentsFragment)
+  {select (group_concat(?consequentFragment; separator=";\\n") as ?consequentsFragment)
      where {
      $this js:consequent ?array.
      ?array rdf:first+ ?consequent.

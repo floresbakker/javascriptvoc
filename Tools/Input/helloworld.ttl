@@ -1,0 +1,49 @@
+prefix ex:  <https://example.org/>
+prefix js:  <https://www.javascript.fin.rijksweb.nl/model/def/>
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+# Root node of the AST (Program node)
+ex:program1
+  a js:Program ;
+  js:body (ex:expressionStatement1) ;
+  js:fragment '''console.log("Hello world!");'''.  
+
+# ExpressionStatement
+ex:expressionStatement1
+  a js:ExpressionStatement ;
+  js:expression ex:callExpression1;
+  js:fragment '''console.log("Hello world!");'''.
+
+# CallExpression node
+ex:callExpression1
+  a js:CallExpression ;
+  js:callee    ex:memberExpression1 ;
+  js:arguments (ex:argument1) ;
+  js:fragment '''console.log("Hello world!")'''.  
+
+# MemberExpression node
+ex:memberExpression1
+  a js:MemberExpression ;
+  js:object   ex:identifierConsole ;
+  js:property ex:identifierLog ;
+  js:computed false;
+  js:fragment '''console.log'''.
+
+# Identifier object 'console'
+ex:identifierConsole
+  a js:Identifier ;
+  js:name '''console''' ;
+  js:fragment '''console'''.  
+
+# Identifier property 'log'
+ex:identifierLog
+  a js:Identifier ;
+  js:name '''log''';
+  js:fragment '''log'''.
+
+# Literal
+ex:argument1
+  a js:Literal ;
+  js:value '''Hello world!''' ;
+  js:raw '''\"hello world!\"''';
+  js:fragment '''"Hello world!"'''.  
