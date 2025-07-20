@@ -2442,8 +2442,8 @@ construct {
   
 } where {
 
-  $this js:key ?key;
-        js:fragment ?keyFragment.
+  $this js:key ?key.
+  ?key  js:fragment ?keyFragment.
     
   $this js:value ?value.
   ?value rdf:type/rdfs:subClassOf* js:Expression;
