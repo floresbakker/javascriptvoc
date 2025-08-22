@@ -515,6 +515,20 @@ js:MemberExpression
   skos:definition "An expression accessing a property of an object."@en ;
   rdfs:isDefinedBy js: .
 
+js:ArrowFunctionExpression
+  a owl:Class ;
+  rdfs:subClassOf js:Function, js:Expression ;
+  skos:prefLabel "Arrow Function Expression"@en ;
+  skos:definition "A fat arrow function expression"@en ;
+  rdfs:isDefinedBy js: .
+
+js:YieldExpression
+  a owl:Class ;
+  rdfs:subClassOf js:Expression ;
+  skos:prefLabel "Yield Expression"@en ;
+  skos:definition "A yield expression"@en ;
+  rdfs:isDefinedBy js: .  
+  
 js:FunctionExpression
   a owl:Class ;
   rdfs:subClassOf js:Function, js:Expression ;
@@ -638,6 +652,27 @@ js:LogicalOperator a owl:Class ;
   ) ;
   skos:prefLabel "Logical Operator"@en ;
   skos:definition "A logical operator token used in a LogicalExpression."@en ;
+  rdfs:isDefinedBy js: .
+
+js:TemplateLiteral
+  a owl:Class ;
+  rdfs:subClassOf js:Expression ;
+  skos:prefLabel "Template Literal"@en ;
+  skos:definition "A template literal is delimited with backtick (`) characters, allowing for multi-line strings, string interpolation with embedded expressions, and special constructs called tagged templates."@en ;
+  rdfs:isDefinedBy js: .
+
+js:TaggedTemplateExpression
+  a owl:Class ;
+  rdfs:subClassOf js:Expression ;
+  skos:prefLabel "Tagged Template Expression"@en ;
+  skos:definition "A tagged template expression allows you to parse template literals with a function. The first argument of a tag function contains an array of string values. The remaining arguments are related to the expressions."@en ;
+  rdfs:isDefinedBy js: .
+
+js:TemplateElement
+  a owl:Class ;
+  rdfs:subClassOf js:Node ;
+  skos:prefLabel "Template Element"@en ;
+  skos:definition "A template element is a string as part of a template literal."@en ;
   rdfs:isDefinedBy js: .
   
 ### Properties
@@ -3495,6 +3530,48 @@ construct {
 ''';
     rdfs:isDefinedBy js:.
 
+shp:TemplateElement
+    a sh:NodeShape;
+    sh:rule rule:TemplateElement;
+    sh:target target:TemplateElement;
+    skos:prefLabel 'Template literal shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:TemplateElement
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all TemplateElements in the javascript AST...
+  $this a/rdfs:subClassOf* js:TemplateElement.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+}
+''';
+    rdfs:isDefinedBy js:.
+
+rule:TemplateElement
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  $this js:value ?value.
+  ?value js:raw ?fragment.
+        
+}''';
+    rdfs:isDefinedBy js:.
+
 shp:TemplateLiteral
     a sh:NodeShape;
     sh:rule rule:TemplateLiteral;
@@ -3547,7 +3624,7 @@ construct {
   
 } where {
   {
-    select $this (group_concat(?value; separator="") as ?arrayFragment) where {
+    select $this (group_concat(?arrayElementFragment; separator="") as ?arrayFragment) where {
       select * where {
         $this rdf:type js:TemplateLiteral;
           js:quasis ?quasisArray;        
@@ -3556,14 +3633,15 @@ construct {
         {
           ?quasisArray rdf:rest*/rdf:first ?templateElement.
           ?templateElement js:value ?value.
+          ?value js:raw ?arrayElementFragment.
           bind(function:getListIndex(?quasisArray, ?templateElement) as ?indexList)
           bind("1" as ?groupIndex)
         }
         union
         {
           ?expressionsArray rdf:rest*/rdf:first ?expression.
-          ?expression js:name ?expressionValue.
-          bind(concat("${", ?expressionValue, "}") as ?value)
+          ?expression js:name ?expressionName.
+          bind(concat("${", ?expressionName, "}") as ?arrayElementFragment)
           bind(function:getListIndex(?expressionsArray, ?expression) as ?indexList)
           bind("2" as ?groupIndex)
         }
@@ -3572,6 +3650,64 @@ construct {
     } group by $this
   }
   bind(concat("`", ?arrayFragment, "`") as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:TaggedTemplateExpression
+    a sh:NodeShape;
+    sh:rule rule:TaggedTemplateExpression;
+    sh:target target:TaggedTemplateExpression;
+    skos:prefLabel 'Template literal shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:TaggedTemplateExpression
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all TaggedTemplateExpressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:TaggedTemplateExpression.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose tag already has a js:fragment
+  filter not exists {
+    $this js:tag ?expression.   
+    ?expression rdf:type/rdfs:subClassOf* js:Expression.
+    filter not exists { ?expression js:fragment []. }
+  }
+
+  # ...but whose quasi already has a js:fragment
+  filter not exists {
+    $this js:quasi ?templateLiteral.
+    ?templateLiteral rdf:type/rdfs:subClassOf* js:TemplateLiteral.
+    filter not exists { ?templateLiteral js:fragment []. }
+  }
+}
+''';
+    rdfs:isDefinedBy js:.
+
+rule:TaggedTemplateExpression
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  $this js:tag ?tag.
+  ?tag js:fragment ?tagFragment.
+  
+  $this js:quasi ?quasi.
+  ?quasi js:fragment ?quasiFragment.
+  bind(concat(?tagFragment, ?quasiFragment) as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
