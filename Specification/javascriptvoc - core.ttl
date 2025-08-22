@@ -2,8 +2,10 @@ prefix dcm:       <http://purl.org/dc/dcmitype/>
 prefix dct:       <http://purl.org/dc/terms/>
 prefix decl:      <https://www.javascript.fin.rijksweb.nl/model/decl/>
 prefix foaf:      <http://xmlns.com/foaf/0.1/>
+prefix function:  <https://www.javascript.fin.rijksweb.nl/model/function/>
 prefix js:        <https://www.javascript.fin.rijksweb.nl/model/def/>
 prefix owl:       <http://www.w3.org/2002/07/owl#>
+prefix parameter: <https://www.javascript.fin.rijksweb.nl/model/parameter/>
 prefix rdf:       <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 prefix rdfs:      <http://www.w3.org/2000/01/rdf-schema#>
 prefix respec:    <https://respec.org/model/>
@@ -959,22 +961,22 @@ construct {
 ''';
     rdfs:isDefinedBy js:.
 
-shp:Function
+shp:FunctionExpression
     a sh:NodeShape;
-    sh:rule rule:Function;
-    sh:target target:Function;
-    skos:prefLabel 'Function shape'@en;
+    sh:rule rule:FunctionExpression;
+    sh:target target:FunctionExpression;
+    skos:prefLabel 'Function Expression shape'@en;
     rdfs:isDefinedBy js:.
 
-target:Function
+target:FunctionExpression
     a sh:SPARQLTarget;
     rdfs:comment ''@en;
     sh:prefixes js:;
     sh:select '''
 select $this {
 
-  # Select all functions in the javascript AST...
-  $this a/rdfs:subClassOf* js:Function.
+  # Select all functions expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:FunctionExpression.
   
   # ...that do not yet have a javascript fragment.
   filter not exists { $this js:fragment []. }
@@ -1003,7 +1005,90 @@ select $this {
 }''';
     rdfs:isDefinedBy js:.
 
-rule:Function
+rule:FunctionExpression
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  $this js:id ?identifier.
+  # May also be anonymous (js:null)
+  optional{
+  ?identifier js:fragment ?identifierFragment.}
+  
+  {select (group_concat(?patternFragment; separator=",") as ?paramsFragment)
+     where {
+     $this js:params ?array.
+     ?array rdf:rest*/rdf:first ?pattern.
+     ?pattern js:fragment ?patternFragment.
+  }}
+  
+  $this js:body ?functionBody.
+  ?functionBody rdf:type js:FunctionBody.
+  ?functionBody js:fragment ?bodyFragment.
+
+  $this js:generator ?generator.
+  $this js:async ?async.
+
+  bind(if(?async = true, "async ", "") AS ?asyncFragment)
+  bind(if(?generator = true, "*", "") AS ?generatorFragment)  
+ 
+  bind(concat(?asyncFragment, "function",?generatorFragment, coalesce(concat(" ",?identifierFragment), ""),"(", ?paramsFragment, ")\\n", "\\t",?bodyFragment, "\\n") as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:FunctionDeclaration
+    a sh:NodeShape;
+    sh:rule rule:FunctionDeclaration;
+    sh:target target:FunctionDeclaration;
+    skos:prefLabel 'Function Declaration shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:FunctionDeclaration
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all FunctionDeclarations in the javascript AST...
+  $this a/rdfs:subClassOf* js:FunctionDeclaration.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose identifier already has a js:fragment
+  filter not exists {
+    $this js:id ?identifier.
+    ?identifier rdf:type js:Identifier.
+    filter not exists { ?identifier js:fragment []. }
+  }
+
+  # ...and whose params already have a js:fragment
+  filter not exists {
+    $this js:params ?array.
+    ?array rdf:rest*/rdf:first ?pattern.
+    ?pattern rdf:type js:Pattern.
+    filter not exists { ?pattern js:fragment []. }
+  }
+
+  # ...and whose function body already has a js:fragment
+  filter not exists {
+    $this js:body ?functionBody.
+    ?functionBody rdf:type js:FunctionBody.
+    filter not exists { ?functionBody js:fragment []. }
+  } 
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:FunctionDeclaration
     a sh:SPARQLRule;
     rdfs:comment ''@en;
     skos:prefLabel ''@en;
@@ -1037,6 +1122,133 @@ construct {
   bind(if(?generator = true, "*", "") AS ?generatorFragment)  
  
   bind(concat(?asyncFragment, "function",?generatorFragment, " ", ?identifierFragment,"(", ?paramsFragment, ")\\n", "\\t",?bodyFragment, "\\n") as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:ArrowFunctionExpression
+    a sh:NodeShape;
+    sh:rule rule:ArrowFunctionExpression;
+    sh:target target:ArrowFunctionExpression;
+    skos:prefLabel 'ArrowFunctionExpression shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ArrowFunctionExpression
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all ArrowFunctionExpressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:ArrowFunctionExpression.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose params already have a js:fragment
+  filter not exists {
+    $this js:params ?array.
+    ?array rdf:rest*/rdf:first ?pattern.
+    ?pattern rdf:type js:Pattern.
+    filter not exists { ?pattern js:fragment []. }
+  }
+
+  # ...but whose function body already has a js:fragment
+  filter not exists {
+    $this js:body ?functionBody.
+    ?functionBody rdf:type js:FunctionBody.
+    filter not exists { ?functionBody js:fragment []. }
+  } 
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ArrowFunctionExpression
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  
+  {select (group_concat(?patternFragment; separator=",") as ?paramsFragment)
+     where {
+     $this js:params ?array.
+     ?array rdf:rest*/rdf:first ?pattern.
+     ?pattern js:fragment ?patternFragment.
+  }}
+  
+  $this js:body ?functionBody.
+  ?functionBody rdf:type js:FunctionBody.
+  ?functionBody js:fragment ?bodyFragment.
+
+  $this js:async ?async.
+
+  bind(if(?async = true, "async ", "") AS ?asyncFragment)
+ 
+  bind(concat(?asyncFragment, "(", ?paramsFragment, ") => \\n", "\\t",?bodyFragment, "\\n") as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:YieldExpression
+    a sh:NodeShape;
+    sh:rule rule:YieldExpression;
+    sh:target target:YieldExpression;
+    skos:prefLabel 'Yield expression shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:YieldExpression
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all YieldExpressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:YieldExpression.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose argument already has a js:fragment (or is rdf:nil)
+  filter not exists {
+    $this js:argument ?argument.
+    ?argument rdf:type/rdfs:subClassOf* js:Expression.
+    filter not exists { ?argument js:fragment []. }
+  }
+} 
+''';
+    rdfs:isDefinedBy js:.
+
+rule:YieldExpression
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  $this js:id ?identifier.
+  ?identifier js:fragment ?identifierFragment.
+  
+  $this js:argument ?argument.
+  optional{
+  ?argument js:fragment ?argumentFragment.}
+
+  $this js:delegate ?delegate.
+
+  bind(if(?delegate = true, "* ", "") AS ?delegateFragment)
+ 
+  bind(concat("yield",?delegateFragment, " ", coalesce(?argumentFragment, "")) as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
@@ -3282,6 +3494,112 @@ construct {
 }
 ''';
     rdfs:isDefinedBy js:.
+
+shp:TemplateLiteral
+    a sh:NodeShape;
+    sh:rule rule:TemplateLiteral;
+    sh:target target:TemplateLiteral;
+    skos:prefLabel 'Template literal shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:TemplateLiteral
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all TemplateLiterals in the javascript AST...
+  $this a/rdfs:subClassOf* js:TemplateLiteral.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose expressions already have a js:fragment
+  filter not exists {
+    $this js:expressions ?expressionsArray.
+    ?expressionsArray rdf:rest*/rdf:first ?expression.
+    ?expression rdf:type/rdfs:subClassOf* js:Expression.
+    filter not exists { ?expression js:fragment []. }
+  }
+
+  # ...but whose quasis already have a js:fragment
+  filter not exists {
+    $this js:quasis ?quasisArray.
+    ?quasisArray rdf:rest*/rdf:first ?templateElement.
+    ?templateElement rdf:type/rdfs:subClassOf* js:TemplateElement.
+    filter not exists { ?templateElement js:fragment []. }
+  }
+}
+''';
+    rdfs:isDefinedBy js:.
+
+rule:TemplateLiteral
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+  {
+    select $this (group_concat(?value; separator="") as ?arrayFragment) where {
+      select * where {
+        $this rdf:type js:TemplateLiteral;
+          js:quasis ?quasisArray;        
+          js:expressions ?expressionsArray.
+
+        {
+          ?quasisArray rdf:rest*/rdf:first ?templateElement.
+          ?templateElement js:value ?value.
+          bind(function:getListIndex(?quasisArray, ?templateElement) as ?indexList)
+          bind("1" as ?groupIndex)
+        }
+        union
+        {
+          ?expressionsArray rdf:rest*/rdf:first ?expression.
+          ?expression js:name ?expressionValue.
+          bind(concat("${", ?expressionValue, "}") as ?value)
+          bind(function:getListIndex(?expressionsArray, ?expression) as ?indexList)
+          bind("2" as ?groupIndex)
+        }
+      }
+      order by ?indexList ?groupIndex
+    } group by $this
+  }
+  bind(concat("`", ?arrayFragment, "`") as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+function:getListIndex
+    a sh:SPARQLFunction ;
+    rdfs:comment "Returns the index of the first occurrence of the given item in the given list." ;
+    sh:parameter parameter:index_list,
+                 parameter:index_item ;
+    sh:returnType xsd:positiveInteger ;
+    sh:select """
+
+prefix rdf:       <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+    select(count(?sublist) as $return) {
+      $list rdf:rest* ?sublist.
+      ?sublist rdf:rest*/rdf:first $item.
+    }
+""" .
+
+
+parameter:index_list
+    a sh:Parameter;
+    sh:class rdf:List;
+    sh:order "1";
+    sh:path parameter:list.
     
-
-
+parameter:index_item
+    a sh:Parameter;
+    sh:class rdfs:Resource;
+    sh:order "2";
+    sh:path parameter:item.
