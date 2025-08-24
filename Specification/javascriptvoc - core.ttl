@@ -213,12 +213,54 @@ js:Property
   skos:prefLabel 'Property'@en;
   rdfs:isDefinedBy js:.
 
+js:AssignmentProperty
+  a owl:Class;
+  owl:intersectionOf (js:Property [rdf:type owl:Restriction;
+                                   owl:onProperty js:value;
+                                   owl:someValueFrom js:AssignmentPattern]);
+  dct:conformsTo section:AssignmentProperty;
+  skos:definition 'Represents an assignment property in the Javascript syntax.'@en;
+  skos:prefLabel 'Assignment Property'@en;
+  rdfs:isDefinedBy js:.
+
 js:Pattern
   a owl:Class;
   rdfs:subClassOf js:Node;
   dct:conformsTo section:Pattern;
   skos:definition 'Represents a pattern in the Javascript syntax.'@en;
   skos:prefLabel 'Pattern'@en;
+  rdfs:isDefinedBy js:.
+
+js:ArrayPattern
+  a owl:Class;
+  rdfs:subClassOf js:Pattern;
+  dct:conformsTo section:ArrayPattern;
+  skos:definition 'Represents an array pattern in the Javascript syntax.'@en;
+  skos:prefLabel 'Array Pattern'@en;
+  rdfs:isDefinedBy js:.
+
+js:RestElement
+  a owl:Class;
+  rdfs:subClassOf js:Pattern;
+  dct:conformsTo section:RestElement;
+  skos:definition 'Represents a rest element in the Javascript syntax.'@en;
+  skos:prefLabel 'Rest Element'@en;
+  rdfs:isDefinedBy js:.
+
+js:AssignmentPattern
+  a owl:Class;
+  rdfs:subClassOf js:Pattern;
+  dct:conformsTo section:AssignmentPattern;
+  skos:definition 'Represents an assignment pattern in the Javascript syntax.'@en;
+  skos:prefLabel 'Assignment Pattern'@en;
+  rdfs:isDefinedBy js:.
+
+js:ObjectPattern
+  a owl:Class;
+  rdfs:subClassOf js:Pattern;
+  dct:conformsTo section:ObjectPattern;
+  skos:definition 'Represents an object pattern in the Javascript syntax.'@en;
+  skos:prefLabel 'Object Pattern'@en;
   rdfs:isDefinedBy js:.
 
 js:SpreadElement
@@ -3727,6 +3769,229 @@ prefix rdf:       <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     }
 """ .
 
+shp:ArrayPattern
+    a sh:NodeShape;
+    sh:rule rule:ArrayPattern;
+    sh:target target:ArrayPattern;
+    skos:prefLabel 'Array pattern shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ArrayPattern
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all ArrayPatterns in the javascript AST...
+  $this a/rdfs:subClassOf* js:ArrayPattern.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose elements already have a js:fragment
+  filter not exists {
+    $this js:elements ?array.
+    ?array rdf:rest*/rdf:first ?element.    
+    ?element rdf:type/rdfs:subClassOf* js:Pattern.
+    filter not exists { ?element js:fragment []. }
+  }
+}
+''';
+    rdfs:isDefinedBy js:.
+
+rule:ArrayPattern
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+
+} where {
+  {
+    select (group_concat(?elementFragment; separator = ",") as ?arrayFragment) where {
+      $this js:elements ?array.
+      ?array rdf:rest*/rdf:first ?element.
+      ?element rdf:type/rdfs:subClassOf* js:Pattern;
+               js:fragment ?elementFragment.
+    }
+  }
+  bind(concat("[", ?arrayFragment, "]") as ?fragment)
+}
+''';
+    rdfs:isDefinedBy js:.
+
+shp:RestElement
+    a sh:NodeShape;
+    sh:rule rule:RestElement;
+    sh:target target:RestElement;
+    skos:prefLabel 'Rest element shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:RestElement
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all RestElements in the javascript AST...
+  $this a/rdfs:subClassOf* js:RestElement.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose pattern already has a js:fragment
+  filter not exists {
+    $this js:pattern ?pattern.   
+    ?pattern rdf:type/rdfs:subClassOf* js:Pattern.
+    filter not exists { ?pattern js:fragment []. }
+  }
+}
+''';
+    rdfs:isDefinedBy js:.
+
+rule:RestElement
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+
+} where {
+   $this js:pattern ?pattern.
+   ?pattern rdf:type/rdfs:subClassOf* js:Pattern;
+            js:fragment ?patternFragment.
+  bind(concat("...", ?patternFragment) as ?fragment)
+}
+''';
+    rdfs:isDefinedBy js:.
+
+shp:AssignmentPattern
+    a sh:NodeShape;
+    sh:rule rule:AssignmentPattern;
+    sh:target target:AssignmentPattern;
+    skos:prefLabel 'Assignment pattern shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:AssignmentPattern
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all AssignmentPatterns in the javascript AST...
+  $this a/rdfs:subClassOf* js:AssignmentPattern.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose pattern already has a js:fragment
+  filter not exists {
+    $this js:left ?pattern.   
+    ?pattern rdf:type/rdfs:subClassOf* js:Pattern.
+    filter not exists { ?pattern js:fragment []. }
+  }
+  
+  # ...and whose expression already has a js:fragment
+  filter not exists {
+    $this js:right ?expression.   
+    ?expression rdf:type/rdfs:subClassOf* js:Expression.
+    filter not exists { ?expression js:fragment []. }
+  } 
+}
+''';
+    rdfs:isDefinedBy js:.
+
+rule:AssignmentPattern
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+
+} where {
+
+  $this js:left ?pattern.   
+  ?pattern rdf:type/rdfs:subClassOf* js:Pattern;
+           js:fragment ?patternFragment.
+
+  $this js:right ?expression.   
+  ?expression rdf:type/rdfs:subClassOf* js:Expression;
+             js:fragment ?expressionFragment.
+
+  bind(concat(?patternFragment, '=', ?expressionFragment) as ?fragment)
+}
+''';
+    rdfs:isDefinedBy js:.
+
+shp:ObjectPattern
+    a sh:NodeShape;
+    sh:rule rule:ObjectPattern;
+    sh:target target:ObjectPattern;
+    skos:prefLabel 'Object pattern shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ObjectPattern
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all ObjectPatterns in the javascript AST...
+  $this a/rdfs:subClassOf* js:ObjectPattern.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose properties already have a js:fragment
+  filter not exists {
+    $this js:properties ?array.
+    ?array rdf:rest*/rdf:first ?property.
+    ?property rdf:type/rdfs:subClassOf* js:Property.
+    filter not exists { ?property js:fragment []. }
+  }
+}
+''';
+    rdfs:isDefinedBy js:.
+
+rule:ObjectPattern
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+
+} where {
+
+  {select (group_concat(?propertyFragment; separator = ",") as ?arrayFragment) where {
+  $this js:properties ?array.
+  ?array rdf:rest*/rdf:first ?property.  
+  ?property rdf:type/rdfs:subClassOf* js:AssignmentProperty;
+         js:fragment ?propertyFragment.}
+  }
+  bind(concat("{",?arrayFragment,"}") as ?fragment)
+}
+''';
+    rdfs:isDefinedBy js:.
 
 parameter:index_list
     a sh:Parameter;
