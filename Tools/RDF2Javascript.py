@@ -4,7 +4,7 @@ Created on Wed Jul  5 18:40:53 2023
 
 @author: Flores Bakker
 
-The Javascript Vocabulary.
+The RDF2Javascript script to serialize RDF-based model of arbitrary Javascript based Abstract Syntax Trees into actual javascript code.
 
 Usage: 
 
@@ -59,7 +59,7 @@ def iteratePyShacl(javascript_generator, serializable_graph):
        
         statusquery = serializable_graph.query('''
             
-prefix js:  <https://www.javascript.fin.rijksweb/model/def/>
+prefix js:  <https://www.javascript.fin.rijksweb.nl/model/def/>
 prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
 ASK
@@ -73,7 +73,7 @@ WHERE
 
         resultquery = serializable_graph.query('''
             
-prefix js:  <https://www.javascript.fin.rijksweb/model/def/>
+prefix js:  <https://www.javascript.fin.rijksweb.nl/model/def/>
 prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
 SELECT ?javascriptFragment

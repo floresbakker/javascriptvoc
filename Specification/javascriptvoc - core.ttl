@@ -716,6 +716,41 @@ js:TemplateElement
   skos:prefLabel "Template Element"@en ;
   skos:definition "A template element is a string as part of a template literal."@en ;
   rdfs:isDefinedBy js: .
+
+js:Class
+  a owl:Class ;
+  rdfs:subClassOf js:Node ;
+  skos:prefLabel "Class"@en ;
+  skos:definition "A class."@en ;
+  rdfs:isDefinedBy js: .
+  
+js:ClassBody
+  a owl:Class ;
+  rdfs:subClassOf js:Node ;
+  skos:prefLabel "Class body"@en ;
+  skos:definition "A class body."@en ;
+  rdfs:isDefinedBy js: .
+  
+js:ClassDeclaration
+  a owl:Class ;
+  rdfs:subClassOf js:Class, js:Declaration ;
+  skos:prefLabel "Class declaration"@en ;
+  skos:definition "A class declaration."@en ;
+  rdfs:isDefinedBy js: .  
+
+js:ClassExpression
+  a owl:Class ;
+  rdfs:subClassOf js:Class, js:Expression ;
+  skos:prefLabel "Class expression"@en ;
+  skos:definition "A class expression."@en ;
+  rdfs:isDefinedBy js: .
+
+js:MethodDefinition
+  a owl:Class ;
+  rdfs:subClassOf js:Node ;
+  skos:prefLabel "Method definition"@en ;
+  skos:definition "A method definition."@en ;
+  rdfs:isDefinedBy js: .
   
 ### Properties
 
@@ -981,7 +1016,7 @@ construct {
   ?flags   js:flags   ?flagsString.
   }
   bind(if(bound(?pattern), concat('"/', ?patternString, '/', ?flagsString,'"'), 
-       if(datatype(?valueFragment)=xsd:string, concat('"',?valueFragment, '"'), ?valueFragment)) as ?fragment)
+       if(datatype(?valueFragment)=xsd:string, concat('"',?valueFragment, '"'), str(?valueFragment))) as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
@@ -3753,22 +3788,6 @@ construct {
 }''';
     rdfs:isDefinedBy js:.
 
-function:getListIndex
-    a sh:SPARQLFunction ;
-    rdfs:comment "Returns the index of the first occurrence of the given item in the given list." ;
-    sh:parameter parameter:index_list,
-                 parameter:index_item ;
-    sh:returnType xsd:positiveInteger ;
-    sh:select """
-
-prefix rdf:       <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-
-    select(count(?sublist) as $return) {
-      $list rdf:rest* ?sublist.
-      ?sublist rdf:rest*/rdf:first $item.
-    }
-""" .
-
 shp:ArrayPattern
     a sh:NodeShape;
     sh:rule rule:ArrayPattern;
@@ -3993,14 +4012,400 @@ construct {
 ''';
     rdfs:isDefinedBy js:.
 
+shp:MethodDefinition
+    a sh:NodeShape;
+    sh:rule rule:MethodDefinition;
+    sh:target target:MethodDefinition;
+    skos:prefLabel 'Method definition shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:MethodDefinition
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all method definitions in the javascript AST...
+  $this a/rdfs:subClassOf* js:MethodDefinition.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose key already has a js:fragment 
+  filter not exists {
+    $this js:key ?key.
+    ?key rdf:type/rdfs:subClassOf* js:Expression.
+    filter not exists { ?key js:fragment []. }
+  }
+
+  # ...and whose value already has a js:fragment
+  filter not exists {
+    $this js:value ?value.   
+    ?value rdf:type/rdfs:subClassOf* js:FunctionExpression.
+    filter not exists { ?value js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:ClassBody
+    a sh:NodeShape;
+    sh:rule rule:ClassBody;
+    sh:target target:ClassBody;
+    skos:prefLabel 'Class body shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ClassBody
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all class bodies in the javascript AST...
+  $this a/rdfs:subClassOf* js:ClassBody.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose methods of definition already have a js:fragment.
+  filter not exists {
+    $this js:body ?array.
+    ?array rdf:rest*/rdf:first ?methodDefinition.
+    ?methodDefinition rdf:type/rdfs:subClassOf* js:MethodDefinition.
+    filter not exists { ?methodDefinition js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ClassBody
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+   
+  {select(group_concat(?methodDefinitionFragment; separator="\\n") as ?arrayFragment)
+  where {
+  $this js:body ?array.
+  ?array rdf:rest*/rdf:first ?methodDefinition.
+  ?methodDefinition js:fragment ?methodDefinitionFragment.
+    }
+  }
+  bind(concat("{\\n", ?arrayFragment, "\\n}") as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:MethodDefinition
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+construct {
+  $this js:fragment ?fragment.
+}
+where {
+
+  $this js:key ?key.
+  ?key js:fragment ?keyFragment.
+
+  $this js:value ?functionExpression.
+  ?functionExpression js:fragment ?functionFragment.
+
+  $this js:kind ?kind.
+  $this js:static ?static.
+  $this js:computed ?computed.
+
+  # Wrap key in [] if computed
+  bind(if(?computed=true, concat("[", ?keyFragment, "]"), ?keyFragment) as ?computedKeyFragment)
+  # Prefix with static if needed
+  bind(if(?static=true, concat("static ", ?computedKeyFragment), ?computedKeyFragment) as ?staticKeyFragment)
+
+  # Construct final fragment depending on kind
+  bind(
+    if(?kind="method", concat(?staticKeyFragment, " ", ?functionFragment),
+    if(?kind="get", concat("get ", ?staticKeyFragment, " ", ?functionFragment),
+    if(?kind="set", concat("set ", ?staticKeyFragment, " ", ?functionFragment),
+    ?functionFragment))) as ?fragment
+  )
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:ClassDeclaration
+    a sh:NodeShape;
+    sh:rule rule:ClassDeclaration;
+    sh:target target:ClassDeclaration;
+    skos:prefLabel 'Class declaration shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ClassDeclaration
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all class declarations in the javascript AST...
+  $this a/rdfs:subClassOf* js:ClassDeclaration.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose id already has a js:fragment.
+  filter not exists {
+    $this js:id ?id.
+    ?id rdf:type/rdfs:subClassOf* js:Identifier.
+    filter not exists { ?id js:fragment []. }
+  }
+  
+  # ...and whose superclass already has a js:fragment (or is null).
+  filter not exists {
+    $this js:superClass ?superClass.
+    ?superClass rdf:type/rdfs:subClassOf* js:Expression.
+    filter not exists { ?superClass js:fragment []. }
+  }
+
+  # ...and whose class body already has a js:fragment.
+  filter not exists {
+    $this js:body ?classBody.
+    ?classBody rdf:type/rdfs:subClassOf* js:ClassBody.
+    filter not exists { ?classBody js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ClassDeclaration
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+construct {
+  $this js:fragment ?fragment.
+}
+where {
+  $this js:id ?id .
+  ?id js:fragment ?idFragment .
+
+  optional {
+    $this js:superClass ?super .
+    ?super js:fragment ?superFragment .
+  }
+
+  $this js:body ?classBody .
+  ?classBody js:fragment ?bodyFragment .
+
+  bind(
+    if(bound(?superFragment),
+       concat("class ", ?idFragment, " extends ", ?superFragment, " ", ?bodyFragment),
+       concat("class ", ?idFragment, " ", ?bodyFragment)
+    ) as ?fragment
+  )
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:ClassExpression
+    a sh:NodeShape;
+    sh:rule rule:ClassExpression;
+    sh:target target:ClassExpression;
+    skos:prefLabel 'Class expression shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ClassExpression
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all class expressions in the javascript AST...
+  $this a/rdfs:subClassOf* js:ClassExpression.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose id already has a js:fragment (or is null).
+  filter not exists {
+    $this js:id ?id.
+    ?id rdf:type/rdfs:subClassOf* js:Identifier.
+    filter not exists { ?id js:fragment []. }
+  }
+  
+  # ...and whose superclass already has a js:fragment (or is null).
+  filter not exists {
+    $this js:superClass ?superClass.
+    ?superClass rdf:type/rdfs:subClassOf* js:Expression.
+    filter not exists { ?superClass js:fragment []. }
+  }
+
+  # ...and whose class body already has a js:fragment.
+  filter not exists {
+    $this js:body ?classBody.
+    ?classBody rdf:type/rdfs:subClassOf* js:ClassBody.
+    filter not exists { ?classBody js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ClassExpression
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+construct {
+  $this js:fragment ?fragment.
+}
+where {
+
+  optional {
+    $this js:id ?id .
+    ?id js:fragment ?idFragment .
+  }
+
+  optional {
+    $this js:superClass ?super .
+    ?super js:fragment ?superFragment .
+  }
+
+  $this js:body ?classBody .
+  ?classBody js:fragment ?bodyFragment .
+
+  bind(
+    if(bound(?superFragment),
+       concat("class ", coalesce(?idFragment, ""), " extends ", ?superFragment, " ", ?bodyFragment),
+       concat("class ", coalesce(?idFragment, ""), " ", ?bodyFragment)
+    ) as ?fragment
+  )
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:MetaProperty
+    a sh:NodeShape;
+    sh:rule rule:MetaProperty;
+    sh:target target:MetaProperty;
+    skos:prefLabel 'Meta property shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:MetaProperty
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all meta properties in the javascript AST...
+  $this a/rdfs:subClassOf* js:MetaProperty.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose meta already has a js:fragment.
+  filter not exists {
+    $this js:meta ?meta.
+    ?meta rdf:type/rdfs:subClassOf* js:Identifier.
+    filter not exists { ?meta js:fragment []. }
+  }
+  
+  # ...and whose property already has a js:fragment.
+  filter not exists {
+    $this js:property ?property.
+    ?property rdf:type/rdfs:subClassOf* js:Identifier.
+    filter not exists { ?property js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:MetaProperty
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+construct {
+  $this js:fragment ?fragment.
+}
+where {
+
+  $this js:meta ?meta.
+  ?meta rdf:type/rdfs:subClassOf* js:Identifier;
+        js:fragment ?metaFragment.
+        
+  $this js:property ?property.
+  ?property rdf:type/rdfs:subClassOf* js:Identifier;
+        js:fragment ?propertyFragment.
+
+  bind(concat(?metaFragment, ".", ?propertyFragment) as ?fragment)
+
+}''';
+    rdfs:isDefinedBy js:.
+
+function:getListIndex
+    a sh:SPARQLFunction ;
+    rdfs:comment "Returns the index of the first occurrence of the given item in the given list." ;
+    sh:parameter parameter:index_list,
+                 parameter:index_item ;
+    sh:returnType xsd:positiveInteger ;
+    sh:select """
+
+prefix rdf:       <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+    select(count(?sublist) as $return) {
+      $list rdf:rest* ?sublist.
+      ?sublist rdf:rest*/rdf:first $item.
+    }
+""" .
+
 parameter:index_list
     a sh:Parameter;
     sh:class rdf:List;
-    sh:order "1";
+    sh:order "1"^^xsd:integer;
     sh:path parameter:list.
     
 parameter:index_item
     a sh:Parameter;
     sh:class rdfs:Resource;
-    sh:order "2";
+    sh:order "2"^^xsd:integer;
     sh:path parameter:item.

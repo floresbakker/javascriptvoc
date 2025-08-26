@@ -1,0 +1,5 @@
+/Tools/Input/*
+!/Tools/Input/.gitkeep
+
+/Tools/Output/*
+!/Tools/Output/.gitkeep
