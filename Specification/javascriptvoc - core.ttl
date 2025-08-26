@@ -751,6 +751,101 @@ js:MethodDefinition
   skos:prefLabel "Method definition"@en ;
   skos:definition "A method definition."@en ;
   rdfs:isDefinedBy js: .
+
+js:MetaProperty
+  a owl:Class ;
+  rdfs:subClassOf js:Expression ;
+  skos:prefLabel "Meta property"@en ;
+  skos:definition "A meta property."@en ;
+  rdfs:isDefinedBy js: .
+  
+js:ImportOrExportDeclaration
+  a owl:Class ;
+  rdfs:subClassOf js:Node ;
+  skos:prefLabel "Import Or Export Declaration"@en ;
+  skos:definition "An import or export declaration."@en ;
+  rdfs:isDefinedBy js: .
+
+js:ModuleSpecifier
+  a owl:Class ;
+  rdfs:subClassOf js:Node ;
+  skos:prefLabel "Module specifier"@en ;
+  skos:definition "A specifier in an import or export declaration."@en ;
+  rdfs:isDefinedBy js: .
+ 
+js:ImportDeclaration
+  a owl:Class ;
+  rdfs:subClassOf js:ImportOrExportDeclaration ;
+  skos:prefLabel "Import declaration"@en ;
+  skos:definition "An import declaration."@en ;
+  rdfs:isDefinedBy js: .
+
+js:ImportSpecifier
+  a owl:Class ;
+  rdfs:subClassOf js:ModuleSpecifier ;
+  skos:prefLabel "Import specifier"@en ;
+  skos:definition "An import specifier."@en ;
+  rdfs:isDefinedBy js: . 
+
+js:ImportDefaultSpecifier
+  a owl:Class ;
+  rdfs:subClassOf js:ModuleSpecifier ;
+  skos:prefLabel "Import default specifier"@en ;
+  skos:definition "A default import specifier."@en ;
+  rdfs:isDefinedBy js: . 
+
+js:ImportNamespaceSpecifier
+  a owl:Class ;
+  rdfs:subClassOf js:ModuleSpecifier ;
+  skos:prefLabel "Import namespace specifier"@en ;
+  skos:definition "A namespace import specifier."@en ;
+  rdfs:isDefinedBy js: . 
+
+js:ExportNamedDeclaration
+  a owl:Class ;
+  rdfs:subClassOf js:ImportOrExportDeclaration ;
+  skos:prefLabel "Export named declaration"@en ;
+  skos:definition "An export named declaration."@en ;
+  rdfs:isDefinedBy js: .
+
+js:ExportSpecifier
+  a owl:Class ;
+  rdfs:subClassOf js:ModuleSpecifier ;
+  skos:prefLabel "Export specifier"@en ;
+  skos:definition "An export specifier."@en ;
+  rdfs:isDefinedBy js: . 
+
+js:AnonymousDefaultExportedFunctionDeclaration
+  a owl:Class ;
+  owl:intersectionOf (js:Function [rdf:type owl:Restriction;
+                                   owl:onProperty js:id;
+                                   owl:hasValue js:null]);
+  skos:prefLabel "Anonymous Default Exported Function Declaration"@en ;
+  skos:definition "An Anonymous Default Exported Function Declaration."@en ;
+  rdfs:isDefinedBy js: .
+
+js:AnonymousDefaultExportedClassDeclaration
+  a owl:Class ;
+  owl:intersectionOf (js:Class [rdf:type owl:Restriction;
+                                owl:onProperty js:id;
+                                owl:hasValue js:null]);
+  skos:prefLabel "AnonymousDefaultExportedClassDeclaration"@en ;
+  skos:definition "An AnonymousDefaultExportedClassDeclaration."@en ;
+  rdfs:isDefinedBy js: .
+
+js:ExportDefaultDeclaration
+  a owl:Class ;
+  rdfs:subClassOf js:ImportOrExportDeclaration ;
+  skos:prefLabel "Export default declaration"@en ;
+  skos:definition "An export default declaration."@en ;
+  rdfs:isDefinedBy js: . 
+
+js:ExportAllDeclaration
+  a owl:Class ;
+  rdfs:subClassOf js:ImportOrExportDeclaration ;
+  skos:prefLabel "Export all declaration"@en ;
+  skos:definition "An export batch declaration."@en ;
+  rdfs:isDefinedBy js: .
   
 ### Properties
 
@@ -4084,12 +4179,6 @@ rule:ClassBody
     skos:prefLabel ''@en;
     sh:prefixes js:;
     sh:construct '''
-construct {
-
-  # Assert the new javascript fragment for this javascript node
-  $this js:fragment ?fragment.
-  
-} where {
 
 construct {
 
@@ -4119,12 +4208,9 @@ construct {
 
   # Assert the new javascript fragment for this javascript node
   $this js:fragment ?fragment.
-  
-} where {
 
-construct {
-  $this js:fragment ?fragment.
-}
+}  
+
 where {
 
   $this js:key ?key.
@@ -4208,10 +4294,6 @@ construct {
   
 } where {
 
-construct {
-  $this js:fragment ?fragment.
-}
-where {
   $this js:id ?id .
   ?id js:fragment ?idFragment .
 
@@ -4288,11 +4370,6 @@ construct {
   
 } where {
 
-construct {
-  $this js:fragment ?fragment.
-}
-where {
-
   optional {
     $this js:id ?id .
     ?id js:fragment ?idFragment .
@@ -4364,11 +4441,6 @@ construct {
   
 } where {
 
-construct {
-  $this js:fragment ?fragment.
-}
-where {
-
   $this js:meta ?meta.
   ?meta rdf:type/rdfs:subClassOf* js:Identifier;
         js:fragment ?metaFragment.
@@ -4379,6 +4451,496 @@ where {
 
   bind(concat(?metaFragment, ".", ?propertyFragment) as ?fragment)
 
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:ImportDefaultSpecifier
+    a sh:NodeShape;
+    sh:rule rule:ImportDefaultSpecifier;
+    sh:target target:ImportDefaultSpecifier;
+    skos:prefLabel 'Import default specifier shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ImportDefaultSpecifier
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all import default specifiers in the javascript AST...
+  $this a/rdfs:subClassOf* js:ImportDefaultSpecifier.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose local already has a js:fragment.
+  filter not exists {
+    $this js:local ?local.
+    ?local rdf:type/rdfs:subClassOf* js:Identifier.
+    filter not exists { ?local js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ImportDefaultSpecifier
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  $this js:local ?local.
+  ?local rdf:type/rdfs:subClassOf* js:Identifier;
+        js:fragment ?fragment.
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:ImportSpecifier
+    a sh:NodeShape;
+    sh:rule rule:ImportSpecifier;
+    sh:target target:ImportSpecifier;
+    skos:prefLabel 'Import specifier shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ImportSpecifier
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all import specifiers in the javascript AST...
+  $this a/rdfs:subClassOf* js:ImportSpecifier.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose local already has a js:fragment.
+  filter not exists {
+    $this js:local ?local.
+    ?local rdf:type/rdfs:subClassOf* js:Identifier.
+    filter not exists { ?local js:fragment []. }
+  }
+  
+  # ...and whose imported already has a js:fragment.
+  filter not exists {
+    $this js:imported ?imported.
+    ?imported rdf:type/rdfs:subClassOf* js:Identifier.
+    filter not exists { ?imported js:fragment []. }
+  }  
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ImportSpecifier
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  $this js:local ?local.
+  ?local rdf:type/rdfs:subClassOf* js:Identifier;
+        js:fragment ?localFragment.
+        
+  $this js:imported ?imported.
+  ?imported rdf:type/rdfs:subClassOf* js:Identifier;
+        js:fragment ?importedFragment.        
+
+  bind(if(?importedFragment=?localFragment, ?importedFragment, concat(?importedFragment," as ", ?localFragment)) as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:ImportNamespaceSpecifier
+    a sh:NodeShape;
+    sh:rule rule:ImportNamespaceSpecifier;
+    sh:target target:ImportNamespaceSpecifier;
+    skos:prefLabel 'Import namespace specifier shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ImportNamespaceSpecifier
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all import namespace specifiers in the javascript AST...
+  $this a/rdfs:subClassOf* js:ImportNamespaceSpecifier.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose local already has a js:fragment.
+  filter not exists {
+    $this js:local ?local.
+    ?local rdf:type/rdfs:subClassOf* js:Identifier.
+    filter not exists { ?local js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ImportNamespaceSpecifier
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  $this js:local ?local.
+  ?local rdf:type/rdfs:subClassOf* js:Identifier;
+        js:fragment ?localFragment.     
+
+  bind(concat("* as ", ?localFragment) as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:ImportDeclaration
+    a sh:NodeShape;
+    sh:rule rule:ImportDeclaration;
+    sh:target target:ImportDeclaration;
+    skos:prefLabel 'Import declaration shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ImportDeclaration
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all import declarations in the javascript AST...
+  $this a/rdfs:subClassOf* js:ImportDeclaration.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose specifiers already has a js:fragment.
+  filter not exists {
+    $this js:specifiers ?array.
+    ?array rdf:rest*/rdf:first ?specifier.
+    ?specifier rdf:type/rdfs:subClassOf* js:ModuleSpecifier.
+    filter not exists { ?specifier js:fragment []. }
+  }
+
+  # ...and whose source already has a js:fragment.
+  filter not exists {
+    $this js:source ?source.
+    ?source rdf:type/rdfs:subClassOf* js:Literal.
+    filter not exists { ?source js:fragment []. }
+  }  
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ImportDeclaration
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  $this js:source ?source.
+  ?source rdf:type/rdfs:subClassOf* js:Literal;
+          js:fragment ?sourceFragment.
+  
+  {select(group_concat(?specifierFragment; separator=",") as ?arrayFragment)
+  where {
+  $this js:specifiers ?array.
+  ?array rdf:rest*/rdf:first ?specifier.
+  ?specifier rdf:type/rdfs:subClassOf* js:ModuleSpecifier.  
+  ?specifier js:fragment ?specifierFragment.
+    }
+  }
+  
+  optional{
+  $this js:specifiers ?array.
+  ?array rdf:rest*/rdf:first ?importSpecifier.
+  ?importSpecifier rdf:type js:ImportSpecifier.
+  }
+  
+  bind(if(bound(?importSpecifier), concat("{\\n", ?arrayFragment, "\\n}"), ?arrayFragment) as ?moduleFragment)
+  
+  bind(concat("import ", ?moduleFragment, " from ", ?sourceFragment, ";") as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:ExportNamedDeclaration
+    a sh:NodeShape;
+    sh:rule rule:ExportNamedDeclaration;
+    sh:target target:ExportNamedDeclaration;
+    skos:prefLabel 'Export named declaration shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ExportNamedDeclaration
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all export named declarations in the javascript AST...
+  $this a/rdfs:subClassOf* js:ExportNamedDeclaration.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose declaration already has a js:fragment or is null.
+  filter not exists {
+    $this js:declaration ?declaration.
+    ?declaration rdf:type/rdfs:subClassOf* js:Declaration.
+    filter not exists { ?declaration js:fragment []. }
+  }
+  
+  # ...and whose specifiers already has a js:fragment.
+  filter not exists {
+    $this js:specifiers ?array.
+    ?array rdf:rest*/rdf:first ?specifier.
+    ?specifier rdf:type/rdfs:subClassOf* js:ExportSpecifier.
+    filter not exists { ?specifier js:fragment []. }
+  }
+
+  # ...and whose source already has a js:fragment or is null.
+  filter not exists {
+    $this js:source ?source.
+    ?source rdf:type/rdfs:subClassOf* js:Literal.
+    filter not exists { ?source js:fragment []. }
+  }  
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ExportNamedDeclaration
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  optional {
+    $this js:declaration ?declaration.
+    ?declaration rdf:type/rdfs:subClassOf* js:Declaration;
+                 js:fragment ?declarationFragment.
+  }
+
+  optional {
+    $this js:source ?source.
+    ?source rdf:type/rdfs:subClassOf* js:Literal;
+            js:fragment ?sourceFragment.
+  }
+  
+  optional 
+    {select(group_concat(?specifierFragment; separator=",") as ?arrayFragment)
+     where {
+       $this js:specifiers ?array.
+       ?array rdf:rest*/rdf:first ?specifier.
+       ?specifier rdf:type/rdfs:subClassOf* js:ExportSpecifier.  
+       ?specifier js:fragment ?specifierFragment.
+    }
+  }
+  
+  bind(if(!bound(?declarationFragment), concat("{\\n", coalesce(?arrayFragment,""), "\\n}"), ?arrayFragment) as ?moduleFragment)
+  
+  bind(concat("export ", ?moduleFragment, if(bound(?sourceFragment), concat(" from ", ?sourceFragment), ""), ";") as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:ExportSpecifier
+    a sh:NodeShape;
+    sh:rule rule:ExportSpecifier;
+    sh:target target:ExportSpecifier;
+    skos:prefLabel 'Export specifier shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ExportSpecifier
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all export specifiers in the javascript AST...
+  $this a/rdfs:subClassOf* js:ExportSpecifier.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose local already has a js:fragment.
+  filter not exists {
+    $this js:local ?local.
+    ?local rdf:type/rdfs:subClassOf* js:Identifier.
+    filter not exists { ?local js:fragment []. }
+  }
+  
+  # ...and whose exported already has a js:fragment.
+  filter not exists {
+    $this js:exported ?imported.
+    ?imported rdf:type/rdfs:subClassOf* js:Identifier.
+    filter not exists { ?exported js:fragment []. }
+  }  
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ExportSpecifier
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  $this js:local ?local.
+  ?local rdf:type/rdfs:subClassOf* js:Identifier;
+        js:fragment ?localFragment.
+        
+  $this js:exported ?exported.
+  ?exported rdf:type/rdfs:subClassOf* js:Identifier;
+        js:fragment ?exportedFragment.        
+
+  bind(if(?exportedFragment=?localFragment, ?exportedFragment, concat(?localFragment," as ", ?exportedFragment)) as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:ExportAllDeclaration
+    a sh:NodeShape;
+    sh:rule rule:ExportAllDeclaration;
+    sh:target target:ExportAllDeclaration;
+    skos:prefLabel 'Export all declaration shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ExportAllDeclaration
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all export all declarations in the javascript AST...
+  $this a/rdfs:subClassOf* js:ExportAllDeclaration.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose source already has a js:fragment.
+  filter not exists {
+    $this js:source ?source.
+    ?source rdf:type/rdfs:subClassOf* js:Literal.
+    filter not exists { ?source js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ExportAllDeclaration
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+  # Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+  
+} where {
+
+  $this js:source ?source.
+  ?source rdf:type/rdfs:subClassOf* js:Literal;
+        js:fragment ?sourceFragment.     
+
+  bind(concat("export * from ", ?sourceFragment) as ?fragment)
+}''';
+    rdfs:isDefinedBy js:.
+
+shp:ExportDefaultDeclaration
+    a sh:NodeShape;
+    sh:rule rule:ExportDefaultDeclaration;
+    sh:target target:ExportDefaultDeclaration;
+    skos:prefLabel 'Export default declaration shape'@en;
+    rdfs:isDefinedBy js:.
+
+target:ExportDefaultDeclaration
+    a sh:SPARQLTarget;
+    rdfs:comment ''@en;
+    sh:prefixes js:;
+    sh:select '''
+select $this {
+
+  # Select all export default declarations in the javascript AST...
+  $this a/rdfs:subClassOf* js:ExportDefaultDeclaration.
+  
+  # ...that do not yet have a javascript fragment.
+  filter not exists { $this js:fragment []. }
+
+  # ...but whose declaration already has a js:fragment or is null.
+  filter not exists {
+    $this js:declaration ?declaration.
+    ?declaration rdf:type/rdfs:subClassOf* js:Declaration.
+    filter not exists { ?declaration js:fragment []. }
+  }
+}''';
+    rdfs:isDefinedBy js:.
+
+rule:ExportDefaultDeclaration
+    a sh:SPARQLRule;
+    rdfs:comment ''@en;
+    skos:prefLabel ''@en;
+    sh:prefixes js:;
+    sh:construct '''
+construct {
+
+# Assert the new javascript fragment for this javascript node
+  $this js:fragment ?fragment.
+
+}
+where {
+
+   $this js:declaration ?declaration.
+   ?declaration rdf:type/rdfs:subClassOf* js:Declaration;
+                 js:fragment ?declarationFragment.
+    
+  optional { 
+    ?declaration js:id ?id.
+  }
+  
+  bind(
+    if(?id = js:null,
+       concat("export default (", ?declarationFragment, ");"),
+       concat("export default ", ?declarationFragment, ";")
+    ) as ?fragment
+  )
 }''';
     rdfs:isDefinedBy js:.
 

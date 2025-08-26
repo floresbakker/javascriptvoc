@@ -140,7 +140,7 @@ def convert_js_to_rdf(code: str, base: str, vocab: str) -> Graph:
     g.bind("xsd", XSD)
     g.bind("js", js)
 
-    ast = esprima.parseScript(code, loc=True, range=True)
+    ast = esprima.parseModule(code, loc=True, range=True)
     ast_dict = normalize(ast)
 
     add_node(g, js, base_ns, ast_dict)
