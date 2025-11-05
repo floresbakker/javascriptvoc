@@ -21,6 +21,7 @@ prefix vann:      <http://purl.org/vocab/vann/>
 prefix void:      <http://rdfs.org/ns/void#>
 prefix xsd:       <http://www.w3.org/2001/XMLSchema#>
 
+js: {
   js:
     a
       owl:Ontology,
@@ -609,6 +610,13 @@ js:RegExpLiteral
                        owl:cardinality 1]);                      
   skos:prefLabel "RegExpLiteral"@en ;
   skos:definition "A terminal node representing a regex pattern."@en ;
+  rdfs:isDefinedBy js: .
+
+js:null
+  a js:Node ;
+  skos:prefLabel "Null"@en ;
+  skos:definition "A NULL value"@en ;
+  js:fragment "";
   rdfs:isDefinedBy js: .
 
 js:UnaryOperator a owl:Class ;
@@ -1301,8 +1309,11 @@ construct {
   
 } where {
 
+  optional{
   $this js:id ?identifier.
-  ?identifier js:fragment ?identifierFragment.
+  ?identifier js:fragment ?idFragment.
+  }
+  bind(coalesce(?idFragment, "") as ?identifierFragment)
   
   {select (group_concat(?patternFragment; separator=",") as ?paramsFragment)
      where {
@@ -2039,8 +2050,9 @@ construct {
   ?test js:fragment ?testFragment.       
   $this js:consequent ?consequent.
   ?consequent js:fragment ?consequentFragment.
-  $this js:alternate ?alternate.
+  
   optional{
+  $this js:alternate ?alternate.
   ?alternate js:fragment ?alternateFragment.}
  
   bind(concat("if (",?testFragment, ")\\n", "\\t",?consequentFragment, "\\n", if(bound(?alternateFragment), concat('else \\n\\t', ?alternateFragment),"\\n"), "") as ?fragment)
@@ -2106,7 +2118,7 @@ construct {
     }
    }
 
-  bind(concat("(",?discriminantFragment, ") {\\n", "\\t", ?casesFragment, "}\\n") as ?fragment)
+  bind(concat("switch (",?discriminantFragment, ") {\\n", "\\t", ?casesFragment, "}\\n") as ?fragment)
 }''';
     rdfs:isDefinedBy js:.
 
@@ -4817,14 +4829,14 @@ construct {
 where {
 
    $this js:declaration ?declaration.
-                 js:fragment ?declarationFragment.
+   ?declaration js:fragment ?declarationFragment.
     
   optional { 
     ?declaration js:id ?id.
   }
   
   bind(
-    if(?id = js:null,
+    if(!bound(?id) || ?id = js:null,
        concat("export default (", ?declarationFragment, ");"),
        concat("export default ", ?declarationFragment, ";")
     ) as ?fragment
@@ -4859,3 +4871,5 @@ parameter:index_item
     sh:class rdfs:Resource;
     sh:order "2"^^xsd:integer;
     sh:path parameter:item.
+
+}

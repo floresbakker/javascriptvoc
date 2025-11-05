@@ -8,22 +8,22 @@ The RDF2Javascript script to serialize RDF-based model of arbitrary Javascript b
 
 Usage: 
 
-1. Place an arbitrary RDF-based Abstract Syntax Tree snippet of Javascript (as turtle file *.ttl) in the input folder.
+1. Place an arbitrary RDF-based Abstract Syntax Tree snippet of Javascript (as trig file *.trig) in the input folder.
 2. In the command prompt, run 'python RDF2Javascript.py'
-3. Go to the output folder and grab your enriched turtle file, now including Javascript fragments.
+3. Go to the output folder and grab your enriched trig file, now including Javascript fragments.
 
 
 """
 import os
 import pyshacl
 import rdflib 
-from rdflib import Namespace
+from rdflib import Namespace, Dataset
 
 # Get the current working directory in which the RDF2Javascript.py file is located.
 current_dir = os.getcwd()
 
 # Set the path to the desired standard directory. 
-directory_path = os.path.abspath(os.path.join(current_dir, '..'))
+directory_path = os.path.abspath(os.path.join(current_dir))
 
 # namespace declaration
 js = Namespace("https://www.javascript.fin.rijksweb/model/def/")
@@ -38,7 +38,7 @@ def readGraphFromFile(file_path):
 
 # Function to write a graph to a file
 def writeGraph(graph):
-    graph.serialize(destination=directory_path+"/javascriptvoc/Tools/Output/"+filename_stem+"-javascript.ttl", format="turtle")
+    graph.serialize(destination=directory_path+"/Tools/Output/"+filename_stem+"-javascript.trig", format="trig")
 
 # Function to call the PyShacl engine so that a RDF model of an Javascript script can be serialized to Javascript code.
 def iteratePyShacl(javascript_generator, serializable_graph):
@@ -47,8 +47,8 @@ def iteratePyShacl(javascript_generator, serializable_graph):
         pyshacl.validate(
         data_graph=serializable_graph,
         shacl_graph=javascript_generator,
-        data_graph_format="turtle",
-        shacl_graph_format="turtle",
+        data_graph_format="trig",
+        shacl_graph_format="trig",
         advanced=True,
         inplace=True,
         inference=None,
@@ -93,12 +93,12 @@ WHERE {
                 writeGraph(serializable_graph)
                 iteratePyShacl(javascript_generator, serializable_graph)
             else: 
-                 print ("File " + filename_stem+"-javascript.ttl" + " created in output folder.")
+                 print ("File " + filename_stem+"-javascript.trig" + " created in output folder.")
                  writeGraph(serializable_graph)
         
                  for result in resultquery:
                     javascript_fragment = result["javascriptFragment"]
-                    output_file_path = directory_path+"/javascriptvoc/Tools/Output/"+filename_stem+".js"
+                    output_file_path = directory_path+"/Tools/Output/"+filename_stem+".js"
                     
                     # Write the javascript content to the output file
                     with open(output_file_path, "w", encoding="utf-8") as file:
@@ -107,21 +107,22 @@ WHERE {
 
                  
 # loop through any turtle files in the input directory
-for filename in os.listdir(directory_path+"/javascriptvoc/Tools/Input"):
-    if filename.endswith(".ttl"):
-        file_path = os.path.join(directory_path+"/javascriptvoc/Tools/Input", filename)
+for filename in os.listdir(directory_path+"/Tools/Input"):
+    if filename.endswith(".trig"):
+        file_path = os.path.join(directory_path+"/Tools/Input", filename)
         
         # Establish the stem of the file name for reuse in newly created files
         filename_stem = os.path.splitext(filename)[0]
         
         # Get the Javascript vocabulary and place it in a string
-        javascript_generator = readGraphFromFile(directory_path+"/javascriptvoc/Specification/javascriptvoc - core.ttl")
+        javascript_generator = readGraphFromFile(directory_path+"/Specification/javascriptvoc - core.trig")
         
         # Get some Javascript code represented in triples
-        javascript_script_string = readGraphFromFile(file_path) + '\n' + '\n' +  javascript_generator
+        javascript_script_string = readGraphFromFile(file_path) + '\n' + '\n' +  javascript_generator + '\n'
         
         # Create a graph
-        serializable_graph = rdflib.Graph().parse(data=javascript_script_string , format="ttl")
+        serializable_graph = Dataset(default_union=True)
+        serializable_graph.parse(data=javascript_script_string , format="trig")
         serializable_graph.bind("js", js)
                         
         # Inform user

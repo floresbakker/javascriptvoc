@@ -56,7 +56,7 @@ def scalar_props(node: Dict[str, Any]) -> Dict[str, Any]:
         if isinstance(v, list) and any(is_ast_node(i) for i in v):
             continue
         if v is None:
-            continue
+            out[k] = None
         if isinstance(v, (str, int, float, bool)):
             out[k] = v
     return out
@@ -89,6 +89,8 @@ def add_rdf_list(g: Graph, items: List[URIRef]) -> URIRef:
 def add_node(g: Graph, js: Namespace, base_ns: Namespace, node: Any) -> URIRef:
     node = normalize(node)
     node_type = node["type"]
+    if node["type"] == "FunctionDeclaration":
+        print("FunctionDeclaration keys:", node.keys())
 
     s = node_uri(base_ns, node_type)
 
@@ -99,7 +101,10 @@ def add_node(g: Graph, js: Namespace, base_ns: Namespace, node: Any) -> URIRef:
     # scalar props
     for k, v in scalar_props(node).items():
         pred = js.term(k)
-        if isinstance(v, bool):
+        if v is None:
+            g.add((s, pred, js.term("null")))
+            continue
+        elif isinstance(v, bool):
             lit = Literal(v)
         elif isinstance(v, int):
             lit = Literal(v, datatype=XSD.integer)
