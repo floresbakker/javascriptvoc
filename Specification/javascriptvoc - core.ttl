@@ -1191,7 +1191,6 @@ select $this {
   # ...but whose identifier already has a js:fragment (or it is rdf:nil)
   filter not exists {
     $this js:id ?identifier.
-    ?identifier rdf:type js:Identifier.
     filter not exists { ?identifier js:fragment []. }
   }
 
@@ -1199,15 +1198,13 @@ select $this {
   filter not exists {
     $this js:params ?array.
     ?array rdf:rest*/rdf:first ?pattern.
-    ?pattern rdf:type js:Pattern.
     filter not exists { ?pattern js:fragment []. }
   }
 
-  # ...but whose function body already has a js:fragment
+  # ...but whose body already has a js:fragment
   filter not exists {
-    $this js:body ?functionBody.
-    ?functionBody rdf:type js:FunctionBody.
-    filter not exists { ?functionBody js:fragment []. }
+    $this js:body ?body.
+    filter not exists { ?body js:fragment []. }
   } 
 }''';
     rdfs:isDefinedBy js:.
@@ -1237,9 +1234,8 @@ construct {
      ?pattern js:fragment ?patternFragment.
   }}
   
-  $this js:body ?functionBody.
-  ?functionBody rdf:type js:FunctionBody.
-  ?functionBody js:fragment ?bodyFragment.
+  $this js:body ?body.
+  ?body js:fragment ?bodyFragment.
 
   $this js:generator ?generator.
   $this js:async ?async.
@@ -1274,7 +1270,6 @@ select $this {
   # ...but whose identifier already has a js:fragment
   filter not exists {
     $this js:id ?identifier.
-    ?identifier rdf:type js:Identifier.
     filter not exists { ?identifier js:fragment []. }
   }
 
@@ -1282,15 +1277,13 @@ select $this {
   filter not exists {
     $this js:params ?array.
     ?array rdf:rest*/rdf:first ?pattern.
-    ?pattern rdf:type js:Pattern.
     filter not exists { ?pattern js:fragment []. }
   }
 
-  # ...and whose function body already has a js:fragment
+  # ...and whose body already has a js:fragment
   filter not exists {
-    $this js:body ?functionBody.
-    ?functionBody rdf:type js:FunctionBody.
-    filter not exists { ?functionBody js:fragment []. }
+    $this js:body ?body.
+    filter not exists { ?body js:fragment []. }
   } 
 }''';
     rdfs:isDefinedBy js:.
@@ -1318,9 +1311,8 @@ construct {
      ?pattern js:fragment ?patternFragment.
   }}
   
-  $this js:body ?functionBody.
-  ?functionBody rdf:type js:FunctionBody.
-  ?functionBody js:fragment ?bodyFragment.
+  $this js:body ?body.
+  ?body js:fragment ?bodyFragment.
 
   $this js:generator ?generator.
   $this js:async ?async.
@@ -1356,15 +1348,13 @@ select $this {
   filter not exists {
     $this js:params ?array.
     ?array rdf:rest*/rdf:first ?pattern.
-    ?pattern rdf:type js:Pattern.
     filter not exists { ?pattern js:fragment []. }
   }
 
-  # ...but whose function body already has a js:fragment
+  # ...but whose body already has a js:fragment
   filter not exists {
-    $this js:body ?functionBody.
-    ?functionBody rdf:type js:FunctionBody.
-    filter not exists { ?functionBody js:fragment []. }
+    $this js:body ?body.
+    filter not exists { ?body js:fragment []. }
   } 
 }''';
     rdfs:isDefinedBy js:.
@@ -1389,12 +1379,10 @@ construct {
      ?pattern js:fragment ?patternFragment.
   }}
   
-  $this js:body ?functionBody.
-  ?functionBody rdf:type js:FunctionBody.
-  ?functionBody js:fragment ?bodyFragment.
+  $this js:body ?body.
+  ?body js:fragment ?bodyFragment.
 
   $this js:async ?async.
-
   bind(if(?async = true, "async ", "") AS ?asyncFragment)
  
   bind(concat(?asyncFragment, "(", ?paramsFragment, ") => \\n", "\\t",?bodyFragment, "\\n") as ?fragment)
@@ -1424,7 +1412,6 @@ select $this {
   # ...but whose argument already has a js:fragment (or is rdf:nil)
   filter not exists {
     $this js:argument ?argument.
-    ?argument rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?argument js:fragment []. }
   }
 } 
@@ -1753,15 +1740,14 @@ select $this {
   
   # ...but whose object already has a js:fragment
   filter not exists {
-    $this js:object ?expression.
-    filter not exists { ?expression js:fragment []. }
+    $this js:object ?object.
+    filter not exists { ?object js:fragment []. }
   }
 
   # ...but whose body already has a js:fragment.
   filter not exists {
-    $this js:body ?statement.
-    ?statement rdf:type/rdfs:subClassOf* js:Statement.
-    filter not exists { ?statement js:fragment []. }
+    $this js:body ?body.
+    filter not exists { ?body js:fragment []. }
   } 
 }''';
     rdfs:isDefinedBy js:.
@@ -1813,7 +1799,6 @@ select $this {
   # ...but whose argument already has a js:fragment
   filter not exists {
     $this js:argument ?argument.
-    ?argument rdf:type js:Statement.
     filter not exists { ?argument js:fragment []. }
   }
 }''';
@@ -1922,7 +1907,6 @@ select $this {
   # ...but whose label already has a js:fragment
   filter not exists {
     $this js:label ?label.
-    ?label rdf:type js:Identifier.
     filter not exists { ?label js:fragment []. }
   }
 }''';
@@ -1972,7 +1956,6 @@ select $this {
   # ...but whose label already has a js:fragment
   filter not exists {
     $this js:label ?label.
-    ?label rdf:type js:Identifier.
     filter not exists { ?label js:fragment []. }
   }
 }''';
@@ -2034,7 +2017,6 @@ select $this {
   # ...and whose alternate statement already has a js:fragment (or is rdf:nil without js:fragment)
   filter not exists {
     $this js:alternate ?alternate.
-    ?alternate rdf:type/rdfs:subClassOf* js:Statement.
     filter not exists { ?alternate js:fragment []. }
   }
 }''';
@@ -2095,7 +2077,6 @@ select $this {
   filter not exists {
     $this js:cases ?array.
     ?array rdf:rest*/rdf:first ?switchCase.
-    ?switchCase rdf:type/rdfs:subClassOf* js:SwitchCase.
     filter not exists { ?switchCase js:fragment []. }
   }
 }''';
@@ -2121,7 +2102,6 @@ construct {
      where {
      $this js:cases ?array.
      ?array rdf:rest*/rdf:first ?switchCase.
-     ?switchCase rdf:type/rdfs:subClassOf* js:SwitchCase.
      ?switchCase js:fragment ?caseFragment.
     }
    }
@@ -2150,13 +2130,13 @@ select $this {
   # ...that do not yet have a javascript fragment.
   filter not exists { $this js:fragment []. }
 
-  # ...but whose test expression already has a js:fragment
+  # ...but whose test already has a js:fragment
   filter not exists {
     $this js:test ?test.
     filter not exists { ?test js:fragment []. }
   }
 
-  # ...but whose consequent expression already has a js:fragment
+  # ...but whose consequent already has a js:fragment
   filter not exists {
     $this js:consequent ?array.
     ?array rdf:rest*/rdf:first ?consequent.
@@ -2185,7 +2165,6 @@ construct {
      where {
      $this js:consequent ?array.
      ?array rdf:rest*/rdf:first ?consequent.
-     ?consequent rdf:type/rdfs:subClassOf* js:Statement.
      ?consequent js:fragment ?consequentFragment.
     }
    }
@@ -2217,7 +2196,6 @@ select $this {
   # ...but whose argument already has a js:fragment
   filter not exists {
     $this js:argument ?argument.
-    ?argument rdf:type js:Expression.
     filter not exists { ?argument js:fragment []. }
   }
 }''';
@@ -2267,21 +2245,18 @@ select $this {
   # ...but whose block statement already has a js:fragment
   filter not exists {
     $this js:block ?blockStatement.
-    ?blockStatement rdf:type js:BlockStatement.
     filter not exists { ?blockStatement js:fragment []. }
   }
 
   # ...but whose optional handler catchclause already has a js:fragment
   filter not exists {
     $this js:handler ?catchClause.
-    ?catchClause rdf:type js:CatchClause.
     filter not exists { ?catchClause js:fragment []. }
   }
 
   # ...but whose optional finalizer blockstatement already has a js:fragment
   filter not exists {
     $this js:finalizer ?finalizerBlockStatement.
-    ?finalizerBlockStatement rdf:type js:BlockStatement.
     filter not exists { ?finalizerBlockStatement js:fragment []. }
   }  
 }''';
@@ -2302,21 +2277,18 @@ construct {
   
   $this js:block ?blockStatement.
   ?blockStatement 
-     rdf:type js:BlockStatement;
      js:fragment ?blockFragment.
 
   $this js:handler ?catchClause.
   # catchClause might be rdf:nil  
   optional {   
   ?catchClause 
-     rdf:type js:CatchClause;
      js:fragment ?catchFragment.}
 
   $this js:finalizer ?finalizerBlockStatement.
   # finalizer might be rdf:nil    
   optional {   
   ?finalizerBlockStatement
-     rdf:type js:BlockStatement;
      js:fragment ?finalizerFragment.}
   bind(concat('try ', ?blockFragment, '\\n', if(bound(?catchFragment), concat('\\t', 'catch ',?catchFragment, '\\n'), ''), if(bound(?finalizerFragment), concat('\\t finally ', ?finalizerFragment, '\\n'), '')) as ?fragment)
 }
@@ -2343,13 +2315,13 @@ select $this {
   # ...that do not yet have a javascript fragment.
   filter not exists { $this js:fragment []. }
 
-  # ...but whose test expression already has a js:fragment
+  # ...but whose test already has a js:fragment
   filter not exists {
     $this js:test ?test.
     filter not exists { ?test js:fragment []. }
   }
 
-  # ...but whose body statement already has a js:fragment
+  # ...but whose body already has a js:fragment
   filter not exists {
     $this js:body ?body.
     filter not exists { ?body js:fragment []. }
@@ -2685,8 +2657,7 @@ construct {
      where {
      $this js:declarations ?array.
      ?array rdf:rest*/rdf:first ?varDeclarator.
-     ?varDeclarator rdf:type/rdfs:subClassOf* js:VariableDeclarator;
-                    js:fragment ?varDeclaratorFragment.
+     ?varDeclarator js:fragment ?varDeclaratorFragment.
     }
    }
  
@@ -2718,15 +2689,13 @@ select $this {
 
   # ...but whose identifier already has a js:fragment
   filter not exists {
-    $this js:id ?pattern.
-    ?pattern rdf:type js:Pattern.
-    filter not exists { ?pattern js:fragment []. }
+    $this js:id ?identifier.
+    filter not exists { ?identifier js:fragment []. }
   }
   
   # ...and whose init already has a js:fragment (or is rdf:nil)
   filter not exists {
     $this js:init ?expression.
-    ?expression rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?expression js:fragment []. }
   }
 }''';
@@ -2745,15 +2714,12 @@ construct {
   
 } where {
 
-  $this js:id ?pattern.
-  ?pattern rdf:type ?patternClass;
-           js:fragment ?identifierFragment.
-  filter(?patternClass in (js:Pattern, js:Identifier))
+  $this js:id ?identifier.
+  ?identifier js:fragment ?identifierFragment.
 
   $this js:init ?expression.
   OPTIONAL
-  {?expression rdf:type/rdfs:subClassOf* js:Expression;
-              js:fragment ?initFragment.}
+  {?expression js:fragment ?initFragment.}
                
   bind(concat(?identifierFragment,if(bound(?initFragment), concat(" = ",?initFragment), ""), ";") as ?fragment)
 }''';
@@ -2782,7 +2748,6 @@ select $this {
   # ...but whose argument already has a js:fragment
   filter not exists {
     $this js:argument ?argument.
-    ?argument rdf:type js:Expression.
     filter not exists { ?argument js:fragment []. }
   }  
 }''';
@@ -2966,7 +2931,6 @@ select $this {
   filter not exists {
     $this js:properties ?array.
     ?array rdf:rest*/rdf:first ?property.
-    ?property rdf:type/rdfs:subClassOf* js:Property.
     filter not exists { ?property js:fragment []. }
   }
 }''';
@@ -2989,8 +2953,7 @@ construct {
    where {
     $this js:properties ?array.
     ?array rdf:rest*/rdf:first ?property.
-    ?property rdf:type/rdfs:subClassOf* js:Property;
-              js:fragment ?propertyFragment.
+    ?property js:fragment ?propertyFragment.
     }
    }
 }
@@ -3026,7 +2989,6 @@ select $this {
   # ...but whose value already has a js:fragment
   filter not exists {
     $this js:value ?value.
-    ?value rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?value js:fragment []. }
   }
 }''';
@@ -3049,8 +3011,7 @@ construct {
   ?key  js:fragment ?keyFragment.
     
   $this js:value ?value.
-  ?value rdf:type/rdfs:subClassOf* js:Expression;
-         js:fragment ?valueFragment.
+  ?value js:fragment ?valueFragment.
 
   $this js:shorthand ?shorthand.
   $this js:method    ?method.
@@ -3089,7 +3050,6 @@ select $this {
   # ...but whose value already has a js:fragment
   filter not exists {
     $this js:argument ?argument.
-    ?argument rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?argument js:fragment []. }
   }
 }''';
@@ -3114,7 +3074,6 @@ construct {
     js:argument ?argument.
   
   ?argument 
-    rdf:type/rdfs:subClassOf* js:Expression;
     js:fragment ?argumentFragment.
 
   bind(if(?boolean, concat(?operator, ' ', ?argumentFragment), concat(?argumentFragment, ' ', ?operator)) as ?fragment)
@@ -3145,7 +3104,6 @@ select $this {
   # ...but whose value already has a js:fragment
   filter not exists {
     $this js:argument ?argument.
-    ?argument rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?argument js:fragment []. }
   }
 }''';
@@ -3170,7 +3128,6 @@ construct {
     js:argument ?argument.
   
   ?argument 
-    rdf:type/rdfs:subClassOf* js:Expression;
     js:fragment ?argumentFragment.
 
   bind(if(?boolean, concat(?operator, ' ', ?argumentFragment), concat(?argumentFragment, ' ', ?operator)) as ?fragment)
@@ -3201,14 +3158,12 @@ select $this {
   # ...but whose left operand already has a js:fragment
   filter not exists {
     $this js:left ?left.
-    ?left rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?left js:fragment []. }
   }
 
   # ...but whose right operand already has a js:fragment
   filter not exists {
     $this js:right ?right.
-    ?right rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?right js:fragment []. }
   }
 }''';
@@ -3233,11 +3188,9 @@ construct {
     js:right ?right.
   
   ?left
-    rdf:type/rdfs:subClassOf* js:Expression;
     js:fragment ?leftFragment.
 
   ?right
-    rdf:type/rdfs:subClassOf* js:Expression;
     js:fragment ?rightFragment.
 
   bind(concat(?leftFragment, ' ', ?operator, ' ', ?rightFragment) as ?fragment)
@@ -3274,7 +3227,6 @@ select $this {
   # ...but whose right operand already has a js:fragment
   filter not exists {
     $this js:right ?right.
-    ?right rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?right js:fragment []. }
   }
 }''';
@@ -3302,7 +3254,6 @@ construct {
     js:fragment ?leftFragment.
 
   ?right
-    rdf:type/rdfs:subClassOf* js:Expression;
     js:fragment ?rightFragment.
 
   bind(concat(?leftFragment, ' ', ?operator, ' ', ?rightFragment) as ?fragment)
@@ -3332,15 +3283,13 @@ select $this {
 
   # ...but whose left operand already has a js:fragment
   filter not exists {
-    $this js:left ?left.
-    ?left rdf:type/rdfs:subClassOf* js:Expression.    
+    $this js:left ?left.  
     filter not exists { ?left js:fragment []. }
   }
 
   # ...but whose right operand already has a js:fragment
   filter not exists {
     $this js:right ?right.
-    ?right rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?right js:fragment []. }
   }
 }''';
@@ -3365,11 +3314,9 @@ construct {
     js:right ?right.
   
   ?left
-    rdf:type/rdfs:subClassOf* js:Expression;
     js:fragment ?leftFragment.
 
   ?right
-    rdf:type/rdfs:subClassOf* js:Expression;
     js:fragment ?rightFragment.
 
   bind(concat(?leftFragment, ' ', ?operator, ' ', ?rightFragment) as ?fragment)
@@ -3399,22 +3346,19 @@ select $this {
 
   # ...but whose test expression already has a js:fragment
   filter not exists {
-    $this js:test ?test.
-    ?test rdf:type/rdfs:subClassOf* js:Expression.    
+    $this js:test ?test.  
     filter not exists { ?test js:fragment []. }
   }
 
   # ...and whose alternate expression already has a js:fragment
   filter not exists {
     $this js:alternate ?alternate.
-    ?alternate rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?alternate js:fragment []. }
   }
 
   # ...and whose consequent expression already has a js:fragment
   filter not exists {
     $this js:consequent ?consequent.
-    ?consequent rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?consequent js:fragment []. }
   }
 }''';
@@ -3434,16 +3378,13 @@ construct {
 } where {
 
   $this js:test ?test.
-  ?test rdf:type/rdfs:subClassOf* js:Expression;
-        js:fragment ?testFragment.
+  ?test js:fragment ?testFragment.
 
   $this js:consequent ?consequent.
-  ?consequent rdf:type/rdfs:subClassOf* js:Expression;
-              js:fragment ?consequentFragment.
+  ?consequent js:fragment ?consequentFragment.
 
   $this js:alternate ?alternate.
-  ?alternate rdf:type/rdfs:subClassOf* js:Expression;
-             js:fragment ?alternateFragment.
+  ?alternate js:fragment ?alternateFragment.
 
   bind(concat(?testFragment, ' ? ', ?consequentFragment, ' : ', ?alternateFragment) as ?fragment)
 }
@@ -3601,7 +3542,6 @@ select $this {
   # ...but whose callee expression already has a js:fragment
   filter not exists {
     $this js:callee ?callee.
-    ?callee rdf:type/rdfs:subClassOf* js:Expression.    
     filter not exists { ?callee js:fragment []. }
   }
 
@@ -3609,7 +3549,6 @@ select $this {
   filter not exists {
     $this js:arguments ?array.
     ?array rdf:rest*/rdf:first ?argument.
-    ?argument rdf:type/rdfs:subClassOf* js:Node.
     filter not exists { ?argument js:fragment []. }
   }
 }''';
@@ -3669,7 +3608,6 @@ select $this {
   filter not exists {
     $this js:expressions ?array.
     ?array rdf:rest*/rdf:first ?expression.
-    ?expression rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?expression js:fragment []. }
   }
 }''';
@@ -3691,8 +3629,7 @@ construct {
   {select (group_concat(?expressionFragment; separator=",") as ?expressionsFragment)
      where {
      $this js:expressions ?arrayOfExpressions.
-     ?arrayOfExpressions rdf:rest*/rdf:first ?expression.
-     ?expression rdf:type/rdfs:subClassOf* js:Expression.     
+     ?arrayOfExpressions rdf:rest*/rdf:first ?expression.    
      ?expression js:fragment ?expressionFragment.
     }
    }
@@ -3768,7 +3705,6 @@ select $this {
   filter not exists {
     $this js:expressions ?expressionsArray.
     ?expressionsArray rdf:rest*/rdf:first ?expression.
-    ?expression rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?expression js:fragment []. }
   }
 
@@ -3776,7 +3712,6 @@ select $this {
   filter not exists {
     $this js:quasis ?quasisArray.
     ?quasisArray rdf:rest*/rdf:first ?templateElement.
-    ?templateElement rdf:type/rdfs:subClassOf* js:TemplateElement.
     filter not exists { ?templateElement js:fragment []. }
   }
 }
@@ -3848,14 +3783,12 @@ select $this {
   # ...but whose tag already has a js:fragment
   filter not exists {
     $this js:tag ?expression.   
-    ?expression rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?expression js:fragment []. }
   }
 
   # ...but whose quasi already has a js:fragment
   filter not exists {
     $this js:quasi ?templateLiteral.
-    ?templateLiteral rdf:type/rdfs:subClassOf* js:TemplateLiteral.
     filter not exists { ?templateLiteral js:fragment []. }
   }
 }
@@ -3907,7 +3840,6 @@ select $this {
   filter not exists {
     $this js:elements ?array.
     ?array rdf:rest*/rdf:first ?element.    
-    ?element rdf:type/rdfs:subClassOf* js:Pattern.
     filter not exists { ?element js:fragment []. }
   }
 }
@@ -3930,8 +3862,7 @@ construct {
     select (group_concat(?elementFragment; separator = ",") as ?arrayFragment) where {
       $this js:elements ?array.
       ?array rdf:rest*/rdf:first ?element.
-      ?element rdf:type/rdfs:subClassOf* js:Pattern;
-               js:fragment ?elementFragment.
+      ?element js:fragment ?elementFragment.
     }
   }
   bind(concat("[", ?arrayFragment, "]") as ?fragment)
@@ -3962,7 +3893,6 @@ select $this {
   # ...but whose pattern already has a js:fragment
   filter not exists {
     $this js:pattern ?pattern.   
-    ?pattern rdf:type/rdfs:subClassOf* js:Pattern.
     filter not exists { ?pattern js:fragment []. }
   }
 }
@@ -3982,8 +3912,7 @@ construct {
 
 } where {
    $this js:pattern ?pattern.
-   ?pattern rdf:type/rdfs:subClassOf* js:Pattern;
-            js:fragment ?patternFragment.
+   ?pattern js:fragment ?patternFragment.
   bind(concat("...", ?patternFragment) as ?fragment)
 }
 ''';
@@ -4012,14 +3941,12 @@ select $this {
   # ...but whose pattern already has a js:fragment
   filter not exists {
     $this js:left ?pattern.   
-    ?pattern rdf:type/rdfs:subClassOf* js:Pattern.
     filter not exists { ?pattern js:fragment []. }
   }
   
   # ...and whose expression already has a js:fragment
   filter not exists {
     $this js:right ?expression.   
-    ?expression rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?expression js:fragment []. }
   } 
 }
@@ -4040,12 +3967,10 @@ construct {
 } where {
 
   $this js:left ?pattern.   
-  ?pattern rdf:type/rdfs:subClassOf* js:Pattern;
-           js:fragment ?patternFragment.
+  ?pattern js:fragment ?patternFragment.
 
   $this js:right ?expression.   
-  ?expression rdf:type/rdfs:subClassOf* js:Expression;
-             js:fragment ?expressionFragment.
+  ?expression js:fragment ?expressionFragment.
 
   bind(concat(?patternFragment, '=', ?expressionFragment) as ?fragment)
 }
@@ -4076,7 +4001,6 @@ select $this {
   filter not exists {
     $this js:properties ?array.
     ?array rdf:rest*/rdf:first ?property.
-    ?property rdf:type/rdfs:subClassOf* js:Property.
     filter not exists { ?property js:fragment []. }
   }
 }
@@ -4099,8 +4023,7 @@ construct {
   {select (group_concat(?propertyFragment; separator = ",") as ?arrayFragment) where {
   $this js:properties ?array.
   ?array rdf:rest*/rdf:first ?property.  
-  ?property rdf:type/rdfs:subClassOf* js:AssignmentProperty;
-         js:fragment ?propertyFragment.}
+  ?property js:fragment ?propertyFragment.}
   }
   bind(concat("{",?arrayFragment,"}") as ?fragment)
 }
@@ -4130,14 +4053,12 @@ select $this {
   # ...but whose key already has a js:fragment 
   filter not exists {
     $this js:key ?key.
-    ?key rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?key js:fragment []. }
   }
 
   # ...and whose value already has a js:fragment
   filter not exists {
     $this js:value ?value.   
-    ?value rdf:type/rdfs:subClassOf* js:FunctionExpression.
     filter not exists { ?value js:fragment []. }
   }
 }''';
@@ -4167,7 +4088,6 @@ select $this {
   filter not exists {
     $this js:body ?array.
     ?array rdf:rest*/rdf:first ?methodDefinition.
-    ?methodDefinition rdf:type/rdfs:subClassOf* js:MethodDefinition.
     filter not exists { ?methodDefinition js:fragment []. }
   }
 }''';
@@ -4261,21 +4181,18 @@ select $this {
   # ...but whose id already has a js:fragment.
   filter not exists {
     $this js:id ?id.
-    ?id rdf:type/rdfs:subClassOf* js:Identifier.
     filter not exists { ?id js:fragment []. }
   }
   
   # ...and whose superclass already has a js:fragment (or is null).
   filter not exists {
     $this js:superClass ?superClass.
-    ?superClass rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?superClass js:fragment []. }
   }
 
   # ...and whose class body already has a js:fragment.
   filter not exists {
     $this js:body ?classBody.
-    ?classBody rdf:type/rdfs:subClassOf* js:ClassBody.
     filter not exists { ?classBody js:fragment []. }
   }
 }''';
@@ -4337,21 +4254,18 @@ select $this {
   # ...but whose id already has a js:fragment (or is null).
   filter not exists {
     $this js:id ?id.
-    ?id rdf:type/rdfs:subClassOf* js:Identifier.
     filter not exists { ?id js:fragment []. }
   }
   
   # ...and whose superclass already has a js:fragment (or is null).
   filter not exists {
     $this js:superClass ?superClass.
-    ?superClass rdf:type/rdfs:subClassOf* js:Expression.
     filter not exists { ?superClass js:fragment []. }
   }
 
   # ...and whose class body already has a js:fragment.
   filter not exists {
     $this js:body ?classBody.
-    ?classBody rdf:type/rdfs:subClassOf* js:ClassBody.
     filter not exists { ?classBody js:fragment []. }
   }
 }''';
@@ -4415,14 +4329,12 @@ select $this {
   # ...but whose meta already has a js:fragment.
   filter not exists {
     $this js:meta ?meta.
-    ?meta rdf:type/rdfs:subClassOf* js:Identifier.
     filter not exists { ?meta js:fragment []. }
   }
   
   # ...and whose property already has a js:fragment.
   filter not exists {
     $this js:property ?property.
-    ?property rdf:type/rdfs:subClassOf* js:Identifier.
     filter not exists { ?property js:fragment []. }
   }
 }''';
@@ -4442,12 +4354,10 @@ construct {
 } where {
 
   $this js:meta ?meta.
-  ?meta rdf:type/rdfs:subClassOf* js:Identifier;
-        js:fragment ?metaFragment.
+  ?meta js:fragment ?metaFragment.
         
   $this js:property ?property.
-  ?property rdf:type/rdfs:subClassOf* js:Identifier;
-        js:fragment ?propertyFragment.
+  ?property js:fragment ?propertyFragment.
 
   bind(concat(?metaFragment, ".", ?propertyFragment) as ?fragment)
 
@@ -4477,7 +4387,6 @@ select $this {
   # ...but whose local already has a js:fragment.
   filter not exists {
     $this js:local ?local.
-    ?local rdf:type/rdfs:subClassOf* js:Identifier.
     filter not exists { ?local js:fragment []. }
   }
 }''';
@@ -4525,14 +4434,12 @@ select $this {
   # ...but whose local already has a js:fragment.
   filter not exists {
     $this js:local ?local.
-    ?local rdf:type/rdfs:subClassOf* js:Identifier.
     filter not exists { ?local js:fragment []. }
   }
   
   # ...and whose imported already has a js:fragment.
   filter not exists {
     $this js:imported ?imported.
-    ?imported rdf:type/rdfs:subClassOf* js:Identifier.
     filter not exists { ?imported js:fragment []. }
   }  
 }''';
@@ -4552,12 +4459,10 @@ construct {
 } where {
 
   $this js:local ?local.
-  ?local rdf:type/rdfs:subClassOf* js:Identifier;
-        js:fragment ?localFragment.
+  ?local js:fragment ?localFragment.
         
   $this js:imported ?imported.
-  ?imported rdf:type/rdfs:subClassOf* js:Identifier;
-        js:fragment ?importedFragment.        
+  ?imported js:fragment ?importedFragment.        
 
   bind(if(?importedFragment=?localFragment, ?importedFragment, concat(?importedFragment," as ", ?localFragment)) as ?fragment)
 }''';
@@ -4586,7 +4491,6 @@ select $this {
   # ...but whose local already has a js:fragment.
   filter not exists {
     $this js:local ?local.
-    ?local rdf:type/rdfs:subClassOf* js:Identifier.
     filter not exists { ?local js:fragment []. }
   }
 }''';
@@ -4606,8 +4510,7 @@ construct {
 } where {
 
   $this js:local ?local.
-  ?local rdf:type/rdfs:subClassOf* js:Identifier;
-        js:fragment ?localFragment.     
+  ?local js:fragment ?localFragment.     
 
   bind(concat("* as ", ?localFragment) as ?fragment)
 }''';
@@ -4637,14 +4540,12 @@ select $this {
   filter not exists {
     $this js:specifiers ?array.
     ?array rdf:rest*/rdf:first ?specifier.
-    ?specifier rdf:type/rdfs:subClassOf* js:ModuleSpecifier.
     filter not exists { ?specifier js:fragment []. }
   }
 
   # ...and whose source already has a js:fragment.
   filter not exists {
     $this js:source ?source.
-    ?source rdf:type/rdfs:subClassOf* js:Literal.
     filter not exists { ?source js:fragment []. }
   }  
 }''';
@@ -4711,7 +4612,6 @@ select $this {
   # ...but whose declaration already has a js:fragment or is null.
   filter not exists {
     $this js:declaration ?declaration.
-    ?declaration rdf:type/rdfs:subClassOf* js:Declaration.
     filter not exists { ?declaration js:fragment []. }
   }
   
@@ -4719,14 +4619,12 @@ select $this {
   filter not exists {
     $this js:specifiers ?array.
     ?array rdf:rest*/rdf:first ?specifier.
-    ?specifier rdf:type/rdfs:subClassOf* js:ExportSpecifier.
     filter not exists { ?specifier js:fragment []. }
   }
 
   # ...and whose source already has a js:fragment or is null.
   filter not exists {
     $this js:source ?source.
-    ?source rdf:type/rdfs:subClassOf* js:Literal.
     filter not exists { ?source js:fragment []. }
   }  
 }''';
@@ -4747,8 +4645,7 @@ construct {
 
   optional {
     $this js:declaration ?declaration.
-    ?declaration rdf:type/rdfs:subClassOf* js:Declaration;
-                 js:fragment ?declarationFragment.
+    ?declaration js:fragment ?declarationFragment.
   }
 
   optional {
@@ -4761,8 +4658,7 @@ construct {
     {select(group_concat(?specifierFragment; separator=",") as ?arrayFragment)
      where {
        $this js:specifiers ?array.
-       ?array rdf:rest*/rdf:first ?specifier.
-       ?specifier rdf:type/rdfs:subClassOf* js:ExportSpecifier.  
+       ?array rdf:rest*/rdf:first ?specifier. 
        ?specifier js:fragment ?specifierFragment.
     }
   }
@@ -4796,14 +4692,12 @@ select $this {
   # ...but whose local already has a js:fragment.
   filter not exists {
     $this js:local ?local.
-    ?local rdf:type/rdfs:subClassOf* js:Identifier.
     filter not exists { ?local js:fragment []. }
   }
   
   # ...and whose exported already has a js:fragment.
   filter not exists {
-    $this js:exported ?imported.
-    ?imported rdf:type/rdfs:subClassOf* js:Identifier.
+    $this js:exported ?exported.
     filter not exists { ?exported js:fragment []. }
   }  
 }''';
@@ -4823,12 +4717,10 @@ construct {
 } where {
 
   $this js:local ?local.
-  ?local rdf:type/rdfs:subClassOf* js:Identifier;
-        js:fragment ?localFragment.
+  ?local js:fragment ?localFragment.
         
   $this js:exported ?exported.
-  ?exported rdf:type/rdfs:subClassOf* js:Identifier;
-        js:fragment ?exportedFragment.        
+  ?exported js:fragment ?exportedFragment.        
 
   bind(if(?exportedFragment=?localFragment, ?exportedFragment, concat(?localFragment," as ", ?exportedFragment)) as ?fragment)
 }''';
@@ -4857,7 +4749,6 @@ select $this {
   # ...but whose source already has a js:fragment.
   filter not exists {
     $this js:source ?source.
-    ?source rdf:type/rdfs:subClassOf* js:Literal.
     filter not exists { ?source js:fragment []. }
   }
 }''';
@@ -4877,8 +4768,7 @@ construct {
 } where {
 
   $this js:source ?source.
-  ?source rdf:type/rdfs:subClassOf* js:Literal;
-        js:fragment ?sourceFragment.     
+  ?source js:fragment ?sourceFragment.     
 
   bind(concat("export * from ", ?sourceFragment) as ?fragment)
 }''';
@@ -4907,7 +4797,6 @@ select $this {
   # ...but whose declaration already has a js:fragment or is null.
   filter not exists {
     $this js:declaration ?declaration.
-    ?declaration rdf:type/rdfs:subClassOf* js:Declaration.
     filter not exists { ?declaration js:fragment []. }
   }
 }''';
@@ -4928,7 +4817,6 @@ construct {
 where {
 
    $this js:declaration ?declaration.
-   ?declaration rdf:type/rdfs:subClassOf* js:Declaration;
                  js:fragment ?declarationFragment.
     
   optional { 
